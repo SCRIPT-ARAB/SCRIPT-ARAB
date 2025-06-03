@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCRIPT ARAB</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1a1a2e;
+            --secondary: #16213e;
+            --accent: #e94560;
+            --light: #f5f5f5;
+            --dark: #0f3460;
+            --success: #00b894;
+            --silver: #C0C0C0;
+            --gold: #FFD700;
+            --platinum: #E5E4E2;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Tajawal', sans-serif;
+        }
+        
+        body {
+            background-color: var(--light);
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        /* Header Styles */
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--dark));
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #fff, #e94560);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin-right: 20px;
+        }
+        
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        
+        nav ul li a:hover {
+            background-color: var(--accent);
+            color: white;
+        }
+        
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, var(--primary), var(--dark));
+            height: 80vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            color: white;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            color: white;
+            width: 60%;
+        }
+        
+        .hero-content h2 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+        
+        .hero-content p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+        
+        .btn {
+            display: inline-block;
+            background-color: var(--accent);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(233, 69, 96, 0.6);
+        }
+        
+        .btn-telegram {
+            background-color: #0088cc;
+            box-shadow: 0 4px 15px rgba(0, 136, 204, 0.4);
+        }
+        
+        .btn-telegram:hover {
+            box-shadow: 0 6px 20px rgba(0, 136, 204, 0.6);
+        }
+
+        .btn-github {
+            background-color: #333;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+        
+        .btn-github:hover {
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+        }
+        
+        /* Features Section */
+        .section {
+            padding: 5rem 0;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .section-title h2 {
+            font-size: 2.5rem;
+            color: var(--primary);
+            position: relative;
+            display: inline-block;
+            padding-bottom: 15px;
+        }
+        
+        .section-title h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background-color: var(--accent);
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .feature-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            text-align: center;
+            border-top: 4px solid var(--accent);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+        }
+        
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+        
+        /* Pricing Section */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .pricing-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid #eee;
+        }
+        
+        .pricing-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .pricing-card.popular {
+            border-color: var(--gold);
+            position: relative;
+        }
+        
+        .popular-badge {
+            position: absolute;
+            top: -15px;
+            right: 20px;
+            background-color: var(--gold);
+            color: var(--dark);
+            padding: 5px 15px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        
+        .pricing-card h3 {
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .price {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+        }
+        
+        .silver .price {
+            color: var(--silver);
+        }
+        
+        .gold .price {
+            color: var(--gold);
+        }
+        
+        .platinum .price {
+            color: var(--platinum);
+        }
+        
+        .price span {
+            font-size: 1rem;
+            color: #777;
+        }
+        
+        .pricing-features {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+        
+        .pricing-features li {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        /* About Section */
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+        
+        .about-text h2 {
+            font-size: 2.2rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+        }
+        
+        .about-text p {
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+        
+        .about-image {
+            background-color: var(--secondary);
+            height: 100%;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        /* Charity Section */
+        .charity-section {
+            background-color: var(--primary);
+            color: white;
+            padding: 4rem 0;
+            text-align: center;
+        }
+        
+        .charity-section h2 {
+            font-size: 2.2rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .charity-section p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto 2rem;
+            opacity: 0.9;
+        }
+        
+        .charity-quote {
+            font-style: italic;
+            font-size: 1.3rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 10px;
+            max-width: 800px;
+            margin: 2rem auto;
+            border-right: 4px solid var(--accent);
+        }
+
+        /* Gaza Support Section */
+        .gaza-support {
+            background-color: #f8f9fa;
+            padding: 4rem 0;
+            text-align: center;
+        }
+
+        .gaza-support .section-title h2 {
+            color: #333;
+        }
+
+        .gaza-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+            margin-top: 2rem;
+        }
+
+        .gaza-text {
+            text-align: right;
+        }
+
+        .gaza-text h3 {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 1.5rem;
+        }
+
+        .gaza-text p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+            color: #555;
+        }
+
+        .gaza-image {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .gaza-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .support-actions {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 2rem;
+        }
+
+        .support-btn {
+            display: inline-block;
+            background-color: var(--accent);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
+        }
+
+        .support-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(233, 69, 96, 0.6);
+        }
+
+        .support-btn.secondary {
+            background-color: #333;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .support-btn.secondary:hover {
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+        }
+        
+        /* Footer */
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 3rem 0 1rem;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .footer-column h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        
+        .footer-column h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 2px;
+            background-color: var(--accent);
+        }
+        
+        .footer-column ul {
+            list-style: none;
+        }
+        
+        .footer-column ul li {
+            margin-bottom: 10px;
+        }
+        
+        .footer-column ul li a {
+            color: #ddd;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .footer-column ul li a:hover {
+            color: var(--accent);
+            padding-right: 5px;
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .social-links a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .social-links a:hover {
+            background-color: var(--accent);
+            transform: translateY(-3px);
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+        
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            .hero-content {
+                width: 80%;
+            }
+            
+            .about-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .about-image {
+                order: -1;
+                height: 300px;
+            }
+
+            .gaza-content {
+                grid-template-columns: 1fr;
+            }
+
+            .gaza-image {
+                order: -1;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+            }
+            
+            .logo {
+                margin-bottom: 1rem;
+            }
+            
+            nav ul {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            nav ul li {
+                margin: 0 10px 10px;
+            }
+            
+            .hero-content {
+                width: 100%;
+                text-align: center;
+            }
+            
+            .hero-content h2 {
+                font-size: 2.2rem;
+            }
+
+            .support-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <h1>SCRIPT ARAB</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#home">الرئيسية</a></li>
+                    <li><a href="#features">مميزات السكربت</a></li>
+                    <li><a href="#pricing">الاشتراكات</a></li>
+                    <li><a href="#about">من نحن</a></li>
+                    <li><a href="#gaza-support">دعم غزة</a></li>
+                    <li><a href="#contact">تواصل معنا</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="container">
+            <div class="hero-content">
+                <h2>سكربت الطيران الاحترافي لـ Crash</h2>
+                <p>أقوى سكربت تحليلات وتنبؤات للعبة Crash مع نتائج دقيقة تصل إلى 98% لتحقيق أقصى استفادة من رصيدك</p>
+                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                    <a href="#pricing" class="btn">احصل على السكربت الآن</a>
+                    <a href="https://t.me/SCRIP_PHP_CRASH_BOT" class="btn btn-telegram" target="_blank"><i class="fab fa-telegram"></i> بوت التيليجرام</a>
+                    <a href="https://example.github.com" class="btn btn-github" target="_blank"><i class="fab fa-github"></i> المشروع على GitHub</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="section" id="features">
+        <div class="container">
+            <div class="section-title">
+                <h2>مميزات السكربت</h2>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <h3>دقة تنبؤ عالية</h3>
+                    <p>نظام تحليل ذكي يتنبأ بنتائج الجولات القادمة بدقة تصل إلى 98% بناءً على خوارزميات متقدمة</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>حماية من الخسارة</h3>
+                    <p>نظام أمان متكامل يحميك من الخسائر الكبيرة ويضمن لك ربح مستمر على المدى الطويل</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>تحليلات متقدمة</h3>
+                    <p>إحصائيات وتحليلات مفصلة لكل جولة لمساعدتك في اتخاذ القرار الأمثل للاستثمار</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3>سرعة فائقة</h3>
+                    <p>تحديثات فورية للتنبؤات دون أي تأخير لضمان عدم فقدان أي فرصة ربح</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-user-secret"></i>
+                    </div>
+                    <h3>خصوصية تامة</h3>
+                    <p>لا نطلب أي بيانات شخصية أو صلاحيات غير ضرورية، كل ما تحتاجه هو كود الاشتراك</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <h3>دعم فني 24/7</h3>
+                    <p>فريق دعم فني متاح على مدار الساعة لمساعدتك في أي استفسار أو مشكلة تواجهك</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section class="section" id="pricing">
+        <div class="container">
+            <div class="section-title">
+                <h2>باقات الاشتراك</h2>
+            </div>
+            <div class="pricing-grid">
+                <div class="pricing-card silver">
+                    <h3>الخطة الفضية</h3>
+                    <div class="price">300 جنيه <span>/3 أيام</span></div>
+                    <ul class="pricing-features">
+                        <li>تنبؤات بدقة 90%</li>
+                        <li>5 تنبؤات يومية</li>
+                        <li>إشعارات قبل الجولة</li>
+                        <li>دعم فني عبر البوت</li>
+                        <li>تحديثات دورية</li>
+                    </ul>
+                    <a href="https://t.me/SCRIP_PHP_CRASH_BOT" class="btn" target="_blank">اشترك الآن</a>
+                </div>
+                <div class="pricing-card gold popular">
+                    <div class="popular-badge">الأكثر طلباً</div>
+                    <h3>الخطة الذهبية</h3>
+                    <div class="price">500 جنيه <span>/7 أيام</span></div>
+                    <ul class="pricing-features">
+                        <li>تنبؤات بدقة 95%</li>
+                        <li>تنبؤات غير محدودة</li>
+                        <li>إشعارات فورية</li>
+                        <li>دعم فني مباشر 24/7</li>
+                        <li>ميزات متقدمة</li>
+                        <li>تحديثات فورية</li>
+                    </ul>
+                    <a href="https://t.me/SCRIP_PHP_CRASH_BOT" class="btn" target="_blank">اشترك الآن</a>
+                </div>
+                <div class="pricing-card platinum">
+                    <h3>الخطة البلاتينية</h3>
+                    <div class="price">1500 جنيه <span>/30 يوم</span></div>
+                    <ul class="pricing-features">
+                        <li>تنبؤات بدقة 98%</li>
+                        <li>تنبؤات غير محدودة</li>
+                        <li>إشعارات فورية + SMS</li>
+                        <li>دعم فني مميز</li>
+                        <li>جميع الميزات المتقدمة</li>
+                        <li>تحديثات فورية</li>
+                        <li>تحليلات مخصصة</li>
+                    </ul>
+                    <a href="https://t.me/SCRIP_PHP_CRASH_BOT" class="btn" target="_blank">اشترك الآن</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="section" id="about">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-text">
+                    <h2>من نحن</h2>
+                    <p>SCRIPT ARAB هو فريق من المطورين والمحللين الماليين المتخصصين في تحليل الأسواق الرقمية وألعاب الاستثمار مثل لعبة Crash. تأسس الفريق عام 2020 وتمكنا من تطوير أنظمة تحليل دقيقة تعتمد على الذكاء الاصطناعي والتعلم الآلي.</p>
+                    <p>هدفنا ليس الربح المادي، بل تقديم خدمة مميزة تساعد المستخدمين على تحقيق أرباح حقيقية من خلال تحليلاتنا الدقيقة. نحن نؤمن بالشفافية والمصداقية في كل ما نقدمه.</p>
+                    <p>فريقنا مكون من 10 أعضاء بين مطورين وخبراء تحليل مالي وممثلين خدمة العملاء، نعمل جميعاً لضمان تجربة مستخدم مميزة ودقة غير مسبوقة في تنبؤاتنا.</p>
+                    <a href="https://t.me/SCRIP_PHP_CRASH_BOT" class="btn btn-telegram" target="_blank"><i class="fab fa-telegram"></i> تواصل معنا</a>
+                </div>
+                <div class="about-image">
+                    <h3>فريق SCRIPT ARAB المحترف</h3>
+                    <p>نعمل ليل نهار لتطوير أفضل أدوات التحليل لك</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gaza Support Section -->
+    <section class="gaza-support" id="gaza-support">
+        <div class="container">
+            <div class="section-title">
+                <h2>رؤيتنا الإنسانية ودعم غزة</h2>
+            </div>
+            <div class="gaza-content">
+                <div class="gaza-text">
+                    <h3>وقفة إنسانية مع أهالي غزة</h3>
+                    <p>نحن في SCRIPT ARAB نؤمن بأن التكنولوجيا والنجاح المادي يجب أن يكون وسيلة لمساعدة المحتاجين ودعم القضايا الإنسانية العادلة. وفي ظل الأوضاع الصعبة التي يعيشها إخواننا في غزة، نعلن عن تخصيص جزء من أرباحنا الشهرية لدعم الشعب الفلسطيني الصامد.</p>
+                    <p>نحن لا نريد المال، أنت تدفع ثمن اتصالك بالخادم فقط وهذا لا يعنينا في شيء، لأننا نساهم في الأعمال الخيرية والتبرع للمنظمات الخيرية حول العالم، وخاصة تلك التي تعمل على دعم أهالي غزة.</p>
+                    <p>ندعوكم للانضمام إلينا في هذه المبادرة الإنسانية، سواء من خلال شراء السكربت الذي سيساهم جزء من ثمنه في دعم غزة، أو من خلال التبرع المباشر عبر المنظمات الموثوقة.</p>
+                    <div class="support-actions">
+                        <a href="#pricing" class="support-btn">ادعم غزة بالاشتراك</a>
+                        <a href="https://www.unrwa.org/" class="support-btn secondary" target="_blank">تبرع مباشرة</a>
+                    </div>
+                </div>
+                <div class="gaza-image">
+                    <img src="https://images.unsplash.com/photo-1635260087420-66d6a5c6d4b9?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80" alt="دعم غزة">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Charity Section -->
+    <section class="charity-section">
+        <div class="container">
+            <h2>رؤيتنا الإنسانية</h2>
+            <p>نحن نؤمن بأن النجاح الحقيقي هو ما ينعكس إيجاباً على المجتمع</p>
+            <div class="charity-quote">
+                "جزء من أرباحنا يتبرع به شهرياً لدعم المشاريع الخيرية والتعليمية في العالم العربي وخاصة في فلسطين المحتلة"
+            </div>
+            <p>نساهم في بناء المدارس، توفير الأدوية، وإغاثة المنكوبين في مناطق الحروب والأزمات</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>SCRIPT ARAB</h3>
+                    <p>أقوى سكربت تحليلات وتنبؤات للعبة Crash مع نتائج دقيقة تصل إلى 98% لتحقيق أقصى استفادة من رصيدك</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-telegram"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="https://example.github.com" target="_blank"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3>روابط سريعة</h3>
+                    <ul>
+                        <li><a href="#home">الرئيسية</a></li>
+                        <li><a href="#features">مميزات السكربت</a></li>
+                        <li><a href="#pricing">باقات الاشتراك</a></li>
+                        <li><a href="#gaza-support">دعم غزة</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>تواصل معنا</h3>
+                    <ul>
+                        <li><a href="https://t.me/SCRIP_PHP_CRASH_BOT" target="_blank"><i class="fab fa-telegram"></i> بوت التيليجرام</a></li>
+                        <li><a href="https://t.me/SCRIP_PHP_CRASH_BOT" target="_blank"><i class="fab fa-telegram"></i> الدعم الفني</a></li>
+                        <li><a href="mailto:support@scriptarab.com"><i class="fas fa-envelope"></i> support@scriptarab.com</a></li>
+                        <li><a href="https://example.github.com" target="_blank"><i class="fab fa-github"></i> مشروع GitHub</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2023 SCRIPT ARAB. جميع الحقوق محفوظة</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
