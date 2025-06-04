@@ -362,6 +362,29 @@
         .fade-in {
             animation: fadeIn 0.5s ease-in-out;
         }
+
+        /* Alert Styles */
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: var(--border-radius);
+            display: none;
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .alert-warning {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
     </style>
 </head>
 <body>
@@ -388,6 +411,9 @@
         </div>
         
         <div class="container">
+            <!-- Alert Messages -->
+            <div id="alert-message" class="alert" style="display: none;"></div>
+            
             <!-- Dashboard -->
             <div class="dashboard">
                 <div class="card">
@@ -480,14 +506,14 @@
                 <div class="form-row" id="time-based-fields">
                     <div class="form-group">
                         <label for="valid-days">عدد أيام الصلاحية</label>
-                        <input type="number" id="valid-days" placeholder="أدخل عدد الأيام" min="1">
+                        <input type="number" id="valid-days" placeholder="أدخل عدد الأيام" min="1" required>
                     </div>
                 </div>
                 
                 <div class="form-row" id="usage-based-fields" style="display: none;">
                     <div class="form-group">
                         <label for="max-usage">الحد الأقصى للاستخدامات</label>
-                        <input type="number" id="max-usage" placeholder="أدخل الحد الأقصى" min="1">
+                        <input type="number" id="max-usage" placeholder="أدخل الحد الأقصى" min="1" required>
                     </div>
                 </div>
                 
@@ -542,10 +568,7 @@
     <script>
         // Google Apps Script Deployment ID
         const scriptId = 'AKfycby3SLzEjp0tuo4QAfqylKOGcNxo7ICitP3eC3WORLGQT43_RMpYG87XFIsOE7Gg5Xq1';
-        const baseUrl = `https://script.google.com/macros/s/AKfycby3SLzEjp0tuo4QAfqylKOGcNxo7ICitP3eC3WORLGQT43_RMpYG87XFIsOE7Gg5Xq1/exec`;
-        
-        // GitHub Gist URL for keys.json
-        const gistUrl = 'https://gist.githubusercontent.com/SCRIPT-ARAB/1311241937c88e8886a634f7493544bc/raw/keys.json';
+        const baseUrl = `https://script.google.com/macros/s/${scriptId}/exec`;
         
         // Password check
         function checkPassword() {
@@ -557,38 +580,60 @@
                 document.getElementById("content").style.display = "block";
                 loadKeysData();
             } else {
-                alert("مفتاح الدخول غير صحيح");
+                showAlert("مفتاح الدخول غير صحيح", "danger");
                 document.getElementById("password").value = "";
                 document.getElementById("password").focus();
             }
         }
         
-        // Load keys data from GitHub Gist via Google Apps Script
+        // Show alert message
+        function showAlert(message, type) {
+            const alertDiv = document.getElementById("alert-message");
+            alertDiv.textContent = message;
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.style.display = "block";
+            
+            setTimeout(() => {
+                alertDiv.style.display = "none";
+            }, 5000);
+        }
+        
+        // Load keys data from localStorage or Google Apps Script
         function loadKeysData() {
             // Show loading state
             document.getElementById('keys-table-body').innerHTML = 
                 '<tr><td colspan="7" style="text-align: center; padding: 20px;"><i class="fas fa-spinner fa-spin"></i> جاري تحميل البيانات...</td></tr>';
             
-            // Fetch keys from Google Apps Script which will get them from GitHub
+            // Try to fetch from Google Apps Script first
             fetch(`${baseUrl}?action=getKeys`)
                 .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
+                    if (!response.ok) throw new Error('Network response was not ok');
                     return response.json();
                 })
                 .then(data => {
                     if (data && data.keys) {
+                        // Save to localStorage
+                        localStorage.setItem('accessKeys', JSON.stringify(data.keys));
                         displayKeys(data.keys);
                         updateDashboard(data.keys);
+                        showAlert("تم تحميل البيانات بنجاح من الخادم", "success");
                     } else {
                         throw new Error('Invalid data format');
                     }
                 })
                 .catch(error => {
-                    console.error('Error fetching keys:', error);
-                    document.getElementById('keys-table-body').innerHTML = 
-                        '<tr><td colspan="7" style="text-align: center; padding: 20px; color: red;">خطأ في تحميل البيانات. الرجاء المحاولة لاحقاً.</td></tr>';
+                    console.log('Falling back to localStorage due to:', error);
+                    // Fallback to localStorage if GAS fails
+                    const localKeys = localStorage.getItem('accessKeys');
+                    if (localKeys) {
+                        displayKeys(JSON.parse(localKeys));
+                        updateDashboard(JSON.parse(localKeys));
+                        showAlert("تم تحميل البيانات من التخزين المحلي (لا يوجد اتصال بالخادم)", "warning");
+                    } else {
+                        document.getElementById('keys-table-body').innerHTML = 
+                            '<tr><td colspan="7" style="text-align: center; padding: 20px;">لا توجد مفاتيح متاحة</td></tr>';
+                        showAlert("لا توجد بيانات متاحة في التخزين المحلي", "warning");
+                    }
                 });
         }
         
@@ -639,15 +684,15 @@
                 const timeDiff = expiryDate.getTime() - today.getTime();
                 const daysRemaining = Math.ceil(timeDiff / (1000 * 3600 * 24));
                 
-                // Calculate usage percentage
-                const usagePercentage = (key.used / key.maxUsage) * 100;
+                // Format creation date (use today if not available)
+                const creationDate = key.createdAt ? new Date(key.createdAt) : new Date();
                 
                 row.innerHTML = `
                     <td>${key.key}</td>
-                    <td>${formatDate(new Date().toISOString())}</td>
-                    <td>${formatDate(key.expiry)} (${daysRemaining > 0 ? daysRemaining + ' يوم' : 'منتهي'})</td>
+                    <td>${formatDate(creationDate)}</td>
+                    <td>${formatDate(expiryDate)} (${daysRemaining > 0 ? daysRemaining + ' يوم' : 'منتهي'})</td>
                     <td><span class="${statusClass}"><i class="fas ${statusIcon}"></i> ${statusText}</span></td>
-                    <td>${key.used}</td>
+                    <td>${key.used || 0}</td>
                     <td>${key.maxUsage}</td>
                     <td>
                         <button class="action-btn edit-btn" onclick="openEditKeyModal('${key.key}')">
@@ -669,6 +714,10 @@
                 document.getElementById('active-keys').textContent = '0';
                 document.getElementById('expired-keys').textContent = '0';
                 document.getElementById('avg-validity').textContent = '0 يوم';
+                
+                document.getElementById('active-keys-progress').style.width = '0%';
+                document.getElementById('expired-keys-progress').style.width = '0%';
+                document.getElementById('avg-validity-progress').style.width = '0%';
                 return;
             }
             
@@ -682,7 +731,7 @@
                 const timeDiff = expiryDate.getTime() - today.getTime();
                 const daysRemaining = Math.ceil(timeDiff / (1000 * 3600 * 24));
                 
-                if (key.isActive && daysRemaining > 0 && key.used < key.maxUsage) {
+                if (key.isActive && daysRemaining > 0 && (key.used || 0) < key.maxUsage) {
                     activeKeys++;
                     totalDays += daysRemaining;
                 } else {
@@ -705,8 +754,7 @@
         }
         
         // Format date for display
-        function formatDate(dateString) {
-            const date = new Date(dateString);
+        function formatDate(date) {
             const options = { year: 'numeric', month: 'long', day: 'numeric' };
             return date.toLocaleDateString('ar-EG', options);
         }
@@ -714,6 +762,9 @@
         // Modal functions
         function openAddKeyModal() {
             document.getElementById('add-key-modal').style.display = 'flex';
+            document.getElementById('time-based-fields').style.display = 'flex';
+            document.getElementById('usage-based-fields').style.display = 'none';
+            document.getElementById('add-key-form').reset();
         }
         
         function closeModal(modalId) {
@@ -721,57 +772,67 @@
         }
         
         function openEditKeyModal(keyValue) {
-            // Fetch the specific key data
-            fetch(`${baseUrl}?action=getKey&key=${encodeURIComponent(keyValue)}`)
-                .then(response => response.json())
-                .then(key => {
-                    if (key) {
-                        document.getElementById('edit-key-id').value = key.key;
-                        document.getElementById('edit-key').value = key.key;
-                        document.getElementById('edit-expiry-date').value = key.expiry;
-                        document.getElementById('edit-max-usage').value = key.maxUsage;
-                        
-                        let statusValue = 'active';
-                        if (!key.isActive) statusValue = 'inactive';
-                        else if (new Date() > new Date(key.expiry)) statusValue = 'expired';
-                        else if (key.used >= key.maxUsage) statusValue = 'expired';
-                        
-                        document.getElementById('edit-status').value = statusValue;
-                        document.getElementById('edit-key-modal').style.display = 'flex';
-                    } else {
-                        alert('لم يتم العثور على المفتاح');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching key:', error);
-                    alert('حدث خطأ أثناء جلب بيانات المفتاح');
-                });
+            const localKeys = JSON.parse(localStorage.getItem('accessKeys') || '[]');
+            const key = localKeys.find(k => k.key === keyValue);
+            
+            if (key) {
+                document.getElementById('edit-key-id').value = key.key;
+                document.getElementById('edit-key').value = key.key;
+                document.getElementById('edit-expiry-date').value = key.expiry.split('T')[0];
+                document.getElementById('edit-max-usage').value = key.maxUsage;
+                
+                let statusValue = 'active';
+                if (!key.isActive) statusValue = 'inactive';
+                else if (new Date() > new Date(key.expiry)) statusValue = 'expired';
+                else if ((key.used || 0) >= key.maxUsage) statusValue = 'expired';
+                
+                document.getElementById('edit-status').value = statusValue;
+                document.getElementById('edit-key-modal').style.display = 'flex';
+            } else {
+                showAlert('لم يتم العثور على المفتاح', 'danger');
+            }
         }
         
         // Delete key
         function deleteKey(keyValue) {
             if (confirm('هل أنت متأكد من حذف هذا المفتاح؟ لا يمكن التراجع عن هذا الإجراء.')) {
-                fetch(`${baseUrl}?action=deleteKey`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ key: keyValue })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('تم حذف المفتاح بنجاح');
+                const localKeys = JSON.parse(localStorage.getItem('accessKeys') || '[]');
+                const updatedKeys = localKeys.filter(key => key.key !== keyValue);
+                
+                saveKeys(updatedKeys, 'update')
+                    .then(result => {
+                        if (result.success) {
+                            showAlert(result.message || 'تم حذف المفتاح بنجاح', 'success');
+                        } else {
+                            showAlert('تم الحذف محلياً ولكن ' + (result.message || 'فشل الاتصال بالخادم'), 'warning');
+                        }
                         loadKeysData();
-                    } else {
-                        alert('فشل في حذف المفتاح: ' + (data.message || ''));
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('حدث خطأ أثناء محاولة حذف المفتاح');
-                });
+                    });
             }
+        }
+        
+        // Save keys to localStorage and optionally to Google Apps Script
+        function saveKeys(keys, action = 'local') {
+            // Always save to localStorage
+            localStorage.setItem('accessKeys', JSON.stringify(keys));
+            
+            if (action === 'local') {
+                return Promise.resolve({success: true});
+            }
+            
+            // Try to save to Google Apps Script
+            return fetch(`${baseUrl}?action=${action === 'add' ? 'addKey' : 'updateKeys'}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(action === 'add' ? keys[keys.length - 1] : {keys: keys})
+            })
+            .then(response => response.json())
+            .catch(error => {
+                console.error('Error saving to GAS:', error);
+                return {success: false, message: 'تم الحفظ محلياً ولكن فشل الاتصال بالخادم'};
+            });
         }
         
         // Toggle between time-based and usage-based fields
@@ -785,7 +846,7 @@
             }
         });
         
-        // Form submissions
+        // Add key form submission
         document.getElementById('add-key-form').addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -794,7 +855,14 @@
             
             // Validate key
             if (!newKey) {
-                alert('الرجاء إدخال مفتاح صالح');
+                showAlert('الرجاء إدخال مفتاح صالح', 'danger');
+                return;
+            }
+            
+            // Check if key already exists
+            const localKeys = JSON.parse(localStorage.getItem('accessKeys') || '[]');
+            if (localKeys.some(key => key.key === newKey)) {
+                showAlert('هذا المفتاح موجود بالفعل', 'danger');
                 return;
             }
             
@@ -802,13 +870,14 @@
             let keyData = {
                 key: newKey,
                 isActive: true,
-                used: 0
+                used: 0,
+                createdAt: new Date().toISOString()
             };
             
             if (keyType === 'time-based') {
                 const validDays = parseInt(document.getElementById('valid-days').value);
                 if (isNaN(validDays) || validDays < 1) {
-                    alert('الرجاء إدخال عدد أيام صالح');
+                    showAlert('الرجاء إدخال عدد أيام صالح', 'danger');
                     return;
                 }
                 
@@ -819,7 +888,7 @@
             } else {
                 const maxUsage = parseInt(document.getElementById('max-usage').value);
                 if (isNaN(maxUsage) || maxUsage < 1) {
-                    alert('الرجاء إدخال حد استخدام صالح');
+                    showAlert('الرجاء إدخال حد استخدام صالح', 'danger');
                     return;
                 }
                 
@@ -830,73 +899,56 @@
                 keyData.maxUsage = maxUsage;
             }
             
-            // Send the new key to Google Apps Script
-            fetch(`${baseUrl}?action=addKey`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(keyData)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    closeModal('add-key-modal');
-                    document.getElementById('add-key-form').reset();
-                    loadKeysData();
-                    alert('تم إضافة المفتاح بنجاح');
-                } else {
-                    alert('فشل في إضافة المفتاح: ' + (data.message || ''));
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('حدث خطأ أثناء محاولة إضافة المفتاح');
-            });
+            const updatedKeys = [...localKeys, keyData];
+            
+            saveKeys(updatedKeys, 'add')
+                .then(result => {
+                    if (result.success) {
+                        closeModal('add-key-modal');
+                        document.getElementById('add-key-form').reset();
+                        loadKeysData();
+                        showAlert(result.message || 'تم إضافة المفتاح بنجاح', 'success');
+                    } else {
+                        showAlert('تمت الإضافة محلياً ولكن ' + (result.message || 'فشل الاتصال بالخادم'), 'warning');
+                    }
+                });
         });
         
         // Edit key form submission
         document.getElementById('edit-key-form').addEventListener('submit', function(e) {
             e.preventDefault();
             
+            const originalKey = document.getElementById('edit-key-id').value;
             const keyData = {
-                originalKey: document.getElementById('edit-key-id').value,
                 key: document.getElementById('edit-key').value.trim(),
                 expiry: document.getElementById('edit-expiry-date').value,
                 maxUsage: parseInt(document.getElementById('edit-max-usage').value),
                 isActive: document.getElementById('edit-status').value === 'active',
-                used: 0 // We'll keep the original usage count on the server side
+                used: 0 // We'll keep the original usage count
             };
             
             if (!keyData.key || !keyData.expiry || isNaN(keyData.maxUsage) || keyData.maxUsage < 1) {
-                alert('الرجاء إدخال بيانات صالحة');
+                showAlert('الرجاء إدخال بيانات صالحة', 'danger');
                 return;
             }
             
-            // Send the updated key to Google Apps Script
-            fetch(`${baseUrl}?action=updateKey`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(keyData)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    closeModal('edit-key-modal');
-                    loadKeysData();
-                    alert('تم تحديث المفتاح بنجاح');
-                } else {
-                    alert('فشل في تحديث المفتاح: ' + (data.message || ''));
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('حدث خطأ أثناء محاولة تحديث المفتاح');
-            });
+            const localKeys = JSON.parse(localStorage.getItem('accessKeys') || '[]');
+            const updatedKeys = localKeys.map(key => 
+                key.key === originalKey ? {...key, ...keyData} : key
+            );
+            
+            saveKeys(updatedKeys, 'update')
+                .then(result => {
+                    if (result.success) {
+                        closeModal('edit-key-modal');
+                        loadKeysData();
+                        showAlert(result.message || 'تم تحديث المفتاح بنجاح', 'success');
+                    } else {
+                        showAlert('تم التحديث محلياً ولكن ' + (result.message || 'فشل الاتصال بالخادم'), 'warning');
+                    }
+                });
         });
-        
+
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             // Allow pressing Enter in password field
