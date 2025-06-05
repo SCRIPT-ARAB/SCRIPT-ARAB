@@ -385,6 +385,21 @@
             background-color: #f8d7da;
             color: #721c24;
         }
+        
+        /* Loading Spinner */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0,0,0,.1);
+            border-radius: 50%;
+            border-top-color: #4361ee;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -517,7 +532,7 @@
                     </div>
                 </div>
                 
-                <button type="submit" class="btn btn-block">
+                <button type="submit" class="btn btn-block" id="add-key-submit">
                     <i class="fas fa-save"></i> حفظ المفتاح
                 </button>
             </form>
@@ -558,7 +573,7 @@
                     </select>
                 </div>
                 
-                <button type="submit" class="btn btn-block">
+                <button type="submit" class="btn btn-block" id="edit-key-submit">
                     <i class="fas fa-save"></i> حفظ التعديلات
                 </button>
             </form>
@@ -598,42 +613,45 @@
             }, 5000);
         }
         
-        // Load keys data from localStorage or Google Apps Script
+        // Show loading state for buttons
+        function showLoading(button, show) {
+            if (show) {
+                button.disabled = true;
+                button.innerHTML = `<span class="spinner"></span> جاري المعالجة...`;
+            } else {
+                button.disabled = false;
+                if (button.id === 'add-key-submit') {
+                    button.innerHTML = `<i class="fas fa-save"></i> حفظ المفتاح`;
+                } else if (button.id === 'edit-key-submit') {
+                    button.innerHTML = `<i class="fas fa-save"></i> حفظ التعديلات`;
+                }
+            }
+        }
+        
+        // Load keys data from server
         function loadKeysData() {
             // Show loading state
             document.getElementById('keys-table-body').innerHTML = 
                 '<tr><td colspan="7" style="text-align: center; padding: 20px;"><i class="fas fa-spinner fa-spin"></i> جاري تحميل البيانات...</td></tr>';
             
-            // Try to fetch from Google Apps Script first
             fetch(`${baseUrl}?action=getKeys`)
                 .then(response => {
                     if (!response.ok) throw new Error('Network response was not ok');
                     return response.json();
                 })
                 .then(data => {
-                    if (data && data.keys) {
-                        // Save to localStorage
-                        localStorage.setItem('accessKeys', JSON.stringify(data.keys));
+                    if (data && data.success && data.keys) {
                         displayKeys(data.keys);
                         updateDashboard(data.keys);
-                        showAlert("تم تحميل البيانات بنجاح من الخادم", "success");
                     } else {
-                        throw new Error('Invalid data format');
+                        throw new Error(data?.message || 'Invalid data format');
                     }
                 })
                 .catch(error => {
-                    console.log('Falling back to localStorage due to:', error);
-                    // Fallback to localStorage if GAS fails
-                    const localKeys = localStorage.getItem('accessKeys');
-                    if (localKeys) {
-                        displayKeys(JSON.parse(localKeys));
-                        updateDashboard(JSON.parse(localKeys));
-                        showAlert("تم تحميل البيانات من التخزين المحلي (لا يوجد اتصال بالخادم)", "warning");
-                    } else {
-                        document.getElementById('keys-table-body').innerHTML = 
-                            '<tr><td colspan="7" style="text-align: center; padding: 20px;">لا توجد مفاتيح متاحة</td></tr>';
-                        showAlert("لا توجد بيانات متاحة في التخزين المحلي", "warning");
-                    }
+                    console.error('Error fetching keys:', error);
+                    document.getElementById('keys-table-body').innerHTML = 
+                        '<tr><td colspan="7" style="text-align: center; padding: 20px; color: red;">خطأ في تحميل البيانات: ' + error.message + '</td></tr>';
+                    showAlert("حدث خطأ أثناء تحميل البيانات: " + error.message, "danger");
                 });
         }
         
@@ -772,67 +790,59 @@
         }
         
         function openEditKeyModal(keyValue) {
-            const localKeys = JSON.parse(localStorage.getItem('accessKeys') || '[]');
-            const key = localKeys.find(k => k.key === keyValue);
-            
-            if (key) {
-                document.getElementById('edit-key-id').value = key.key;
-                document.getElementById('edit-key').value = key.key;
-                document.getElementById('edit-expiry-date').value = key.expiry.split('T')[0];
-                document.getElementById('edit-max-usage').value = key.maxUsage;
-                
-                let statusValue = 'active';
-                if (!key.isActive) statusValue = 'inactive';
-                else if (new Date() > new Date(key.expiry)) statusValue = 'expired';
-                else if ((key.used || 0) >= key.maxUsage) statusValue = 'expired';
-                
-                document.getElementById('edit-status').value = statusValue;
-                document.getElementById('edit-key-modal').style.display = 'flex';
-            } else {
-                showAlert('لم يتم العثور على المفتاح', 'danger');
-            }
+            fetch(`${baseUrl}?action=getKey&key=${encodeURIComponent(keyValue)}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    if (data && data.success && data.key) {
+                        document.getElementById('edit-key-id').value = data.key.key;
+                        document.getElementById('edit-key').value = data.key.key;
+                        document.getElementById('edit-expiry-date').value = data.key.expiry.split('T')[0];
+                        document.getElementById('edit-max-usage').value = data.key.maxUsage;
+                        
+                        let statusValue = 'active';
+                        if (!data.key.isActive) statusValue = 'inactive';
+                        else if (new Date() > new Date(data.key.expiry)) statusValue = 'expired';
+                        else if ((data.key.used || 0) >= data.key.maxUsage) statusValue = 'expired';
+                        
+                        document.getElementById('edit-status').value = statusValue;
+                        document.getElementById('edit-key-modal').style.display = 'flex';
+                    } else {
+                        throw new Error(data?.message || 'Key not found');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching key:', error);
+                    showAlert('حدث خطأ أثناء جلب بيانات المفتاح: ' + error.message, 'danger');
+                });
         }
         
         // Delete key
         function deleteKey(keyValue) {
             if (confirm('هل أنت متأكد من حذف هذا المفتاح؟ لا يمكن التراجع عن هذا الإجراء.')) {
-                const localKeys = JSON.parse(localStorage.getItem('accessKeys') || '[]');
-                const updatedKeys = localKeys.filter(key => key.key !== keyValue);
-                
-                saveKeys(updatedKeys, 'update')
-                    .then(result => {
-                        if (result.success) {
-                            showAlert(result.message || 'تم حذف المفتاح بنجاح', 'success');
-                        } else {
-                            showAlert('تم الحذف محلياً ولكن ' + (result.message || 'فشل الاتصال بالخادم'), 'warning');
-                        }
+                fetch(`${baseUrl}?action=deleteKey`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ key: keyValue })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.success) {
+                        showAlert(data.message || 'تم حذف المفتاح بنجاح', 'success');
                         loadKeysData();
-                    });
+                    } else {
+                        throw new Error(data?.message || 'Failed to delete key');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showAlert('حدث خطأ أثناء محاولة حذف المفتاح: ' + error.message, 'danger');
+                });
             }
-        }
-        
-        // Save keys to localStorage and optionally to Google Apps Script
-        function saveKeys(keys, action = 'local') {
-            // Always save to localStorage
-            localStorage.setItem('accessKeys', JSON.stringify(keys));
-            
-            if (action === 'local') {
-                return Promise.resolve({success: true});
-            }
-            
-            // Try to save to Google Apps Script
-            return fetch(`${baseUrl}?action=${action === 'add' ? 'addKey' : 'updateKeys'}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(action === 'add' ? keys[keys.length - 1] : {keys: keys})
-            })
-            .then(response => response.json())
-            .catch(error => {
-                console.error('Error saving to GAS:', error);
-                return {success: false, message: 'تم الحفظ محلياً ولكن فشل الاتصال بالخادم'};
-            });
         }
         
         // Toggle between time-based and usage-based fields
@@ -850,19 +860,16 @@
         document.getElementById('add-key-form').addEventListener('submit', function(e) {
             e.preventDefault();
             
+            const submitBtn = document.getElementById('add-key-submit');
+            showLoading(submitBtn, true);
+            
             const newKey = document.getElementById('new-key').value.trim();
             const keyType = document.getElementById('key-type').value;
             
             // Validate key
             if (!newKey) {
                 showAlert('الرجاء إدخال مفتاح صالح', 'danger');
-                return;
-            }
-            
-            // Check if key already exists
-            const localKeys = JSON.parse(localStorage.getItem('accessKeys') || '[]');
-            if (localKeys.some(key => key.key === newKey)) {
-                showAlert('هذا المفتاح موجود بالفعل', 'danger');
+                showLoading(submitBtn, false);
                 return;
             }
             
@@ -870,14 +877,14 @@
             let keyData = {
                 key: newKey,
                 isActive: true,
-                used: 0,
-                createdAt: new Date().toISOString()
+                used: 0
             };
             
             if (keyType === 'time-based') {
                 const validDays = parseInt(document.getElementById('valid-days').value);
                 if (isNaN(validDays) || validDays < 1) {
                     showAlert('الرجاء إدخال عدد أيام صالح', 'danger');
+                    showLoading(submitBtn, false);
                     return;
                 }
                 
@@ -889,6 +896,7 @@
                 const maxUsage = parseInt(document.getElementById('max-usage').value);
                 if (isNaN(maxUsage) || maxUsage < 1) {
                     showAlert('الرجاء إدخال حد استخدام صالح', 'danger');
+                    showLoading(submitBtn, false);
                     return;
                 }
                 
@@ -899,54 +907,81 @@
                 keyData.maxUsage = maxUsage;
             }
             
-            const updatedKeys = [...localKeys, keyData];
-            
-            saveKeys(updatedKeys, 'add')
-                .then(result => {
-                    if (result.success) {
-                        closeModal('add-key-modal');
-                        document.getElementById('add-key-form').reset();
-                        loadKeysData();
-                        showAlert(result.message || 'تم إضافة المفتاح بنجاح', 'success');
-                    } else {
-                        showAlert('تمت الإضافة محلياً ولكن ' + (result.message || 'فشل الاتصال بالخادم'), 'warning');
-                    }
-                });
+            // Send the new key to server
+            fetch(`${baseUrl}?action=addKey`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(keyData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                showLoading(submitBtn, false);
+                
+                if (data && data.success) {
+                    closeModal('add-key-modal');
+                    document.getElementById('add-key-form').reset();
+                    loadKeysData();
+                    showAlert(data.message || 'تم إضافة المفتاح بنجاح', 'success');
+                } else {
+                    throw new Error(data?.message || 'Failed to add key');
+                }
+            })
+            .catch(error => {
+                showLoading(submitBtn, false);
+                console.error('Error:', error);
+                showAlert('حدث خطأ أثناء محاولة إضافة المفتاح: ' + error.message, 'danger');
+            });
         });
         
         // Edit key form submission
         document.getElementById('edit-key-form').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            const originalKey = document.getElementById('edit-key-id').value;
+            const submitBtn = document.getElementById('edit-key-submit');
+            showLoading(submitBtn, true);
+            
             const keyData = {
+                originalKey: document.getElementById('edit-key-id').value,
                 key: document.getElementById('edit-key').value.trim(),
                 expiry: document.getElementById('edit-expiry-date').value,
                 maxUsage: parseInt(document.getElementById('edit-max-usage').value),
                 isActive: document.getElementById('edit-status').value === 'active',
-                used: 0 // We'll keep the original usage count
+                used: 0 // We'll keep the original usage count on the server side
             };
             
             if (!keyData.key || !keyData.expiry || isNaN(keyData.maxUsage) || keyData.maxUsage < 1) {
                 showAlert('الرجاء إدخال بيانات صالحة', 'danger');
+                showLoading(submitBtn, false);
                 return;
             }
             
-            const localKeys = JSON.parse(localStorage.getItem('accessKeys') || '[]');
-            const updatedKeys = localKeys.map(key => 
-                key.key === originalKey ? {...key, ...keyData} : key
-            );
-            
-            saveKeys(updatedKeys, 'update')
-                .then(result => {
-                    if (result.success) {
-                        closeModal('edit-key-modal');
-                        loadKeysData();
-                        showAlert(result.message || 'تم تحديث المفتاح بنجاح', 'success');
-                    } else {
-                        showAlert('تم التحديث محلياً ولكن ' + (result.message || 'فشل الاتصال بالخادم'), 'warning');
-                    }
-                });
+            // Send the updated key to server
+            fetch(`${baseUrl}?action=updateKey`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(keyData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                showLoading(submitBtn, false);
+                
+                if (data && data.success) {
+                    closeModal('edit-key-modal');
+                    loadKeysData();
+                    showAlert(data.message || 'تم تحديث المفتاح بنجاح', 'success');
+                } else {
+                    throw new Error(data?.message || 'Failed to update key');
+                }
+            })
+            .catch(error => {
+                showLoading(submitBtn, false);
+                console.error('Error:', error);
+                showAlert('حدث خطأ أثناء محاولة تحديث المفتاح: ' + error.message, 'danger');
+            });
         });
 
         // Initialize
