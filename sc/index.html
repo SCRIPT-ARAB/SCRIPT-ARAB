@@ -1,44 +1,657 @@
 <!DOCTYPE html>
-<html>
-  <head>
-
-
+<html lang="ar" dir="rtl">
+<head>
     <meta charset="UTF-8">
-    <title>ENTER SCRIPT KEY</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>صفحة محمية بمفتاح اشتراك</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-      body {
-        font-family: Arial, sans-serif;
-        text-align: center;
-        margin-top: 100px;
-        background-color: #f4f4f4;
-      }
-      #content {
-        display: none;
-      }
-    </style>
-    <script>
-      function checkPassword() {
-        var pass = document.getElementById("password").value;
-        var correctPass = "000000000000";
-        if (pass === correctPass) {
-          document.getElementById("login").style.display = "none";
-          document.getElementById("content").style.display = "block";
-        } else {
-          alert("مفتاح الدخول غير صحيح");
+        :root {
+            --primary-color: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary-color: #3f37c9;
+            --error-color: #f72585;
+            --success-color: #4cc9f0;
+            --text-color: #2b2d42;
+            --light-gray: #f8f9fa;
+            --gray: #adb5bd;
+            --dark-gray: #495057;
         }
-      }
-    </script>
-  </head>
-  <body>
-
-    <div id="login">
-      <h2>KEY</h2>
-      <p>أدخل مفتاح الدخول:</p>
-      <input type="password" id="password" placeholder="ENTER KEY">
-      <button onclick="checkPassword()">ENTER</button>
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Tajawal', Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 0;
+            color: var(--text-color);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .login-container {
+            width: 100%;
+            max-width: 500px;
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s ease;
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .login-container.hidden {
+            transform: translateY(-20px);
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .logo-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 32px;
+            box-shadow: 0 10px 20px rgba(67, 97, 238, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .logo-icon:hover {
+            transform: scale(1.05) rotate(5deg);
+            box-shadow: 0 15px 30px rgba(67, 97, 238, 0.4);
+        }
+        
+        h1 {
+            color: var(--text-color);
+            margin-bottom: 15px;
+            font-size: 28px;
+            font-weight: 700;
+            text-align: center;
+        }
+        
+        .description {
+            color: var(--dark-gray);
+            margin-bottom: 30px;
+            font-size: 16px;
+            text-align: center;
+            line-height: 1.6;
+        }
+        
+        .input-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+        
+        .input-label {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--text-color);
+            font-weight: 500;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .input-field {
+            position: relative;
+        }
+        
+        input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background-color: #f8f9fa;
+            color: var(--text-color);
+        }
+        
+        input:focus {
+            border-color: var(--primary-color);
+            background-color: white;
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.1);
+        }
+        
+        #email {
+            cursor: not-allowed;
+        }
+        
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+            transition: all 0.3s ease;
+        }
+        
+        input:focus + .input-icon {
+            color: var(--primary-color);
+        }
+        
+        button {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 16px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 17px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button:hover {
+            background: linear-gradient(to right, var(--primary-dark), var(--secondary-color));
+            box-shadow: 0 8px 25px rgba(67, 97, 238, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+        
+        button:focus:not(:active)::after {
+            animation: ripple 1s ease-out;
+        }
+        
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(20, 20);
+                opacity: 0;
+            }
+        }
+        
+        #content {
+            display: none;
+            width: 100%;
+            max-width: 800px;
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            margin: 40px auto;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+        
+        #content.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        #content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        }
+        
+        .welcome-message {
+            font-size: 20px;
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .protected-content {
+            line-height: 1.8;
+            color: var(--dark-gray);
+            margin-bottom: 30px;
+        }
+        
+        .protected-content p {
+            margin-bottom: 15px;
+        }
+        
+        #logout-btn {
+            background: linear-gradient(to right, #f72585, #b5179e);
+            width: auto;
+            padding: 12px 30px;
+            display: inline-block;
+            margin-top: 20px;
+        }
+        
+        #logout-btn:hover {
+            background: linear-gradient(to right, #e5177e, #9c148b);
+        }
+        
+        .error {
+            color: var(--error-color);
+            margin: 15px 0;
+            font-size: 14px;
+            text-align: center;
+            font-weight: 500;
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+        
+        .success {
+            color: var(--success-color);
+            margin: 15px 0;
+            font-size: 14px;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .floating-shapes {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+        }
+        
+        .shape {
+            position: absolute;
+            opacity: 0.1;
+            border-radius: 50%;
+        }
+        
+        .shape-1 {
+            width: 200px;
+            height: 200px;
+            background: var(--primary-color);
+            top: -50px;
+            right: -50px;
+            animation: float 15s infinite ease-in-out;
+        }
+        
+        .shape-2 {
+            width: 150px;
+            height: 150px;
+            background: var(--secondary-color);
+            bottom: -30px;
+            left: -30px;
+            animation: float 12s infinite ease-in-out reverse;
+        }
+        
+        .shape-3 {
+            width: 100px;
+            height: 100px;
+            background: var(--error-color);
+            top: 40%;
+            left: 20%;
+            animation: float 10s infinite ease-in-out;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(10px, 10px) rotate(5deg); }
+            50% { transform: translate(0, 20px) rotate(0deg); }
+            75% { transform: translate(-10px, 10px) rotate(-5deg); }
+        }
+        
+        .loading {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            z-index: 10;
+            border-radius: 20px;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        
+        .loading.show {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(67, 97, 238, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+        
+        .loading-text {
+            color: var(--text-color);
+            font-weight: 500;
+        }
+        
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @media (max-width: 768px) {
+            .login-container, #content {
+                padding: 30px 20px;
+                border-radius: 15px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            .description {
+                font-size: 15px;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- الأشكال العائمة -->
+    <div class="floating-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
     </div>
 
-    <div id="content">
+    <!-- واجهة الدخول -->
+    <div class="container">
+        <div id="login-container" class="login-container animate__animated animate__fadeIn">
+            <div class="loading" id="login-loading">
+                <div class="spinner"></div>
+                <div class="loading-text">جاري التحقق...</div>
+            </div>
+            
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-lock"></i>
+                </div>
+            </div>
+            <h1>الدخول بمفتاح الاشتراك</h1>
+            <p class="description">يجب إدخال مفتاح الاشتراك الصحيح للوصول إلى هذه الصفحة</p>
+            
+            <div class="input-group">
+                <label class="input-label">البريد الإلكتروني</label>
+                <div class="input-field">
+                    <input type="email" id="email" value="support@script.arab" readonly>
+                    <i class="fas fa-envelope input-icon"></i>
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <label class="input-label">مفتاح الاشتراك</label>
+                <div class="input-field">
+                    <input type="password" id="password" placeholder="أدخل المفتاح هنا" autocomplete="off">
+                    <i class="fas fa-key input-icon"></i>
+                </div>
+            </div>
+            
+            <button onclick="login()" id="login-btn">
+                <span>ادخل المفتاح</span>
+            </button>
+            <p id="error-message" class="error"></p>
+            <p id="success-message" class="success"></p>
+        </div>
+    </div>
+
+    <!-- المحتوى المحمي -->
+    <div id="content" class="animate__animated">
+        <div class="loading" id="content-loading">
+            <div class="spinner"></div>
+            <div class="loading-text">جاري التحميل...</div>
+        </div>
+        
+        <div class="logo">
+            <div class="logo-icon">
+                <i class="fas fa-check"></i>
+            </div>
+        </div>
+        <h1>مرحبًا بك في نظام script.arab</h1>
+        <p class="welcome-message">تم التحقق من مفتاح الاشتراك بنجاح</p>
+        <div class="protected-content">
+            <p>هذا المحتوى متاح فقط للأعضاء المشتركين في نظامنا. يمكنك الآن الاستفادة من جميع الميزات المتاحة لك حسب باقة الاشتراك الخاصة بك.</p>
+            <p>في حال وجود أي استفسار، لا تتردد في التواصل مع فريق الدعم عبر البريد الإلكتروني المدون أعلاه.</p>
+        </div>
+        <button id="logout-btn" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
+        </button>
+    </div>
+
+    <script>
+        // تهيئة Firebase مع بيانات مشروعك
+        const firebaseConfig = {
+            apiKey: "AIzaSyDz3JdIH912bWhr26f7z8NJUFePH8706jE",
+            authDomain: "script-arab.firebaseapp.com",
+            projectId: "script-arab",
+            storageBucket: "script-arab.appspot.com",
+            messagingSenderId: "81024404977",
+            appId: "1:81024404977:web:80173af0ef8001f1b9c850",
+            measurementId: "G-L39PYJ4N80"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        // مراقبة حالة المصادقة
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                // User is signed in
+                showContent();
+            } else {
+                // User is signed out
+                showLogin();
+            }
+        });
+
+        // عرض واجهة الدخول مع تأثير حركي
+        function showLogin() {
+            const content = document.getElementById('content');
+            const loginContainer = document.getElementById('login-container');
+            
+            content.classList.remove('show');
+            content.classList.remove('animate__fadeIn');
+            
+            setTimeout(() => {
+                content.style.display = 'none';
+                loginContainer.style.display = 'block';
+                loginContainer.classList.remove('hidden');
+                loginContainer.classList.add('animate__fadeIn');
+            }, 500);
+        }
+
+        // عرض المحتوى المحمي مع تأثير حركي
+        function showContent() {
+            const content = document.getElementById('content');
+            const loginContainer = document.getElementById('login-container');
+            
+            loginContainer.classList.add('hidden');
+            loginContainer.classList.remove('animate__fadeIn');
+            
+            setTimeout(() => {
+                loginContainer.style.display = 'none';
+                content.style.display = 'block';
+                
+                setTimeout(() => {
+                    content.classList.add('show');
+                    content.classList.add('animate__fadeIn');
+                }, 50);
+            }, 500);
+        }
+
+        // وظيفة تسجيل الدخول
+        function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('error-message');
+            const successMessage = document.getElementById('success-message');
+            const loginBtn = document.getElementById('login-btn');
+            const loading = document.getElementById('login-loading');
+            
+            // إظهار حالة التحميل
+            loginBtn.disabled = true;
+            loading.classList.add('show');
+            errorMessage.textContent = '';
+            successMessage.textContent = '';
+            
+            firebase.auth().signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // تم تسجيل الدخول بنجاح
+                    successMessage.textContent = 'جاري تحويلك إلى الصفحة الرئيسية...';
+                    
+                    // إخفاء حالة التحميل بعد ثانية
+                    setTimeout(() => {
+                        loading.classList.remove('show');
+                        loginBtn.disabled = false;
+                    }, 1000);
+                })
+                .catch((error) => {
+                    // خطأ في تسجيل الدخول
+                    loading.classList.remove('show');
+                    loginBtn.disabled = false;
+                    errorMessage.textContent = getAuthErrorMessage(error.code);
+                });
+        }
+
+        // وظيفة تسجيل الخروج
+        function logout() {
+            const loading = document.getElementById('content-loading');
+            loading.classList.add('show');
+            
+            firebase.auth().signOut().then(() => {
+                // تم تسجيل الخروج بنجاح
+                setTimeout(() => {
+                    loading.classList.remove('show');
+                }, 1000);
+            }).catch((error) => {
+                loading.classList.remove('show');
+                console.error('Error signing out:', error);
+            });
+        }
+
+        // تحويل أكواد الخطأ إلى رسائل مفهومة
+        function getAuthErrorMessage(errorCode) {
+            switch(errorCode) {
+                case 'auth/invalid-email':
+                    return 'البريد الإلكتروني غير صحيح';
+                case 'auth/user-disabled':
+                    return 'هذا الحساب معطل';
+                case 'auth/user-not-found':
+                    return 'لا يوجد حساب بهذا البريد الإلكتروني';
+                case 'auth/wrong-password':
+                    return 'مفتاح الاشتراك غير صحيح';
+                case 'auth/too-many-requests':
+                    return 'عدد كبير جدًا من المحاولات، يرجى الانتظار قبل إعادة المحاولة';
+                default:
+                    return 'حدث خطأ أثناء محاولة الدخول';
+            }
+        }
+
+        // إضافة تأثير عند الضغط على الأزرار
+        document.addEventListener('DOMContentLoaded', function() {
+            const buttons = document.querySelectorAll('button');
+            
+            buttons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    // تأثير النبض
+                    this.classList.add('animate__animated', 'animate__pulse');
+                    
+                    // إزالة الكلاس بعد انتهاء الحركة
+                    setTimeout(() => {
+                        this.classList.remove('animate__pulse');
+                    }, 500);
+                });
+            });
+            
+            // إضافة تأثير عند التركيز على حقول الإدخال
+            const inputs = document.querySelectorAll('input');
+            
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentElement.querySelector('.input-icon').classList.add('animate__animated', 'animate__swing');
+                    
+                    setTimeout(() => {
+                        this.parentElement.querySelector('.input-icon').classList.remove('animate__swing');
+                    }, 1000);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
 
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
