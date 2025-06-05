@@ -468,191 +468,6 @@
         </div>
     </div>
 
-    <!-- المحتوى المحمي -->
-    <div id="content" class="animate__animated">
-        <div class="loading" id="content-loading">
-            <div class="spinner"></div>
-            <div class="loading-text">جاري التحميل...</div>
-        </div>
-        
-        <div class="logo">
-            <div class="logo-icon">
-                <i class="fas fa-check"></i>
-            </div>
-        </div>
-        <h1>مرحبًا بك في نظام script.arab</h1>
-        <p class="welcome-message">تم التحقق من مفتاح الاشتراك بنجاح</p>
-        <div class="protected-content">
-            <p>هذا المحتوى متاح فقط للأعضاء المشتركين في نظامنا. يمكنك الآن الاستفادة من جميع الميزات المتاحة لك حسب باقة الاشتراك الخاصة بك.</p>
-            <p>في حال وجود أي استفسار، لا تتردد في التواصل مع فريق الدعم عبر البريد الإلكتروني المدون أعلاه.</p>
-        </div>
-        <button id="logout-btn" onclick="logout()">
-            <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
-        </button>
-    </div>
-
-    <script>
-        // تهيئة Firebase مع بيانات مشروعك
-        const firebaseConfig = {
-            apiKey: "AIzaSyDz3JdIH912bWhr26f7z8NJUFePH8706jE",
-            authDomain: "script-arab.firebaseapp.com",
-            projectId: "script-arab",
-            storageBucket: "script-arab.appspot.com",
-            messagingSenderId: "81024404977",
-            appId: "1:81024404977:web:80173af0ef8001f1b9c850",
-            measurementId: "G-L39PYJ4N80"
-        };
-
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-
-        // مراقبة حالة المصادقة
-        firebase.auth().onAuthStateChanged((user) => {
-            if (user) {
-                // User is signed in
-                showContent();
-            } else {
-                // User is signed out
-                showLogin();
-            }
-        });
-
-        // عرض واجهة الدخول مع تأثير حركي
-        function showLogin() {
-            const content = document.getElementById('content');
-            const loginContainer = document.getElementById('login-container');
-            
-            content.classList.remove('show');
-            content.classList.remove('animate__fadeIn');
-            
-            setTimeout(() => {
-                content.style.display = 'none';
-                loginContainer.style.display = 'block';
-                loginContainer.classList.remove('hidden');
-                loginContainer.classList.add('animate__fadeIn');
-            }, 500);
-        }
-
-        // عرض المحتوى المحمي مع تأثير حركي
-        function showContent() {
-            const content = document.getElementById('content');
-            const loginContainer = document.getElementById('login-container');
-            
-            loginContainer.classList.add('hidden');
-            loginContainer.classList.remove('animate__fadeIn');
-            
-            setTimeout(() => {
-                loginContainer.style.display = 'none';
-                content.style.display = 'block';
-                
-                setTimeout(() => {
-                    content.classList.add('show');
-                    content.classList.add('animate__fadeIn');
-                }, 50);
-            }, 500);
-        }
-
-        // وظيفة تسجيل الدخول
-        function login() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const errorMessage = document.getElementById('error-message');
-            const successMessage = document.getElementById('success-message');
-            const loginBtn = document.getElementById('login-btn');
-            const loading = document.getElementById('login-loading');
-            
-            // إظهار حالة التحميل
-            loginBtn.disabled = true;
-            loading.classList.add('show');
-            errorMessage.textContent = '';
-            successMessage.textContent = '';
-            
-            firebase.auth().signInWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    // تم تسجيل الدخول بنجاح
-                    successMessage.textContent = 'جاري تحويلك إلى الصفحة الرئيسية...';
-                    
-                    // إخفاء حالة التحميل بعد ثانية
-                    setTimeout(() => {
-                        loading.classList.remove('show');
-                        loginBtn.disabled = false;
-                    }, 1000);
-                })
-                .catch((error) => {
-                    // خطأ في تسجيل الدخول
-                    loading.classList.remove('show');
-                    loginBtn.disabled = false;
-                    errorMessage.textContent = getAuthErrorMessage(error.code);
-                });
-        }
-
-        // وظيفة تسجيل الخروج
-        function logout() {
-            const loading = document.getElementById('content-loading');
-            loading.classList.add('show');
-            
-            firebase.auth().signOut().then(() => {
-                // تم تسجيل الخروج بنجاح
-                setTimeout(() => {
-                    loading.classList.remove('show');
-                }, 1000);
-            }).catch((error) => {
-                loading.classList.remove('show');
-                console.error('Error signing out:', error);
-            });
-        }
-
-        // تحويل أكواد الخطأ إلى رسائل مفهومة
-        function getAuthErrorMessage(errorCode) {
-            switch(errorCode) {
-                case 'auth/invalid-email':
-                    return 'البريد الإلكتروني غير صحيح';
-                case 'auth/user-disabled':
-                    return 'هذا الحساب معطل';
-                case 'auth/user-not-found':
-                    return 'لا يوجد حساب بهذا البريد الإلكتروني';
-                case 'auth/wrong-password':
-                    return 'مفتاح الاشتراك غير صحيح';
-                case 'auth/too-many-requests':
-                    return 'عدد كبير جدًا من المحاولات، يرجى الانتظار قبل إعادة المحاولة';
-                default:
-                    return 'حدث خطأ أثناء محاولة الدخول';
-            }
-        }
-
-        // إضافة تأثير عند الضغط على الأزرار
-        document.addEventListener('DOMContentLoaded', function() {
-            const buttons = document.querySelectorAll('button');
-            
-            buttons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                    // تأثير النبض
-                    this.classList.add('animate__animated', 'animate__pulse');
-                    
-                    // إزالة الكلاس بعد انتهاء الحركة
-                    setTimeout(() => {
-                        this.classList.remove('animate__pulse');
-                    }, 500);
-                });
-            });
-            
-            // إضافة تأثير عند التركيز على حقول الإدخال
-            const inputs = document.querySelectorAll('input');
-            
-            inputs.forEach(input => {
-                input.addEventListener('focus', function() {
-                    this.parentElement.querySelector('.input-icon').classList.add('animate__animated', 'animate__swing');
-                    
-                    setTimeout(() => {
-                        this.parentElement.querySelector('.input-icon').classList.remove('animate__swing');
-                    }, 1000);
-                });
-            });
-        });
-    </script>
-</body>
-</html>
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -1584,3 +1399,166 @@
   </body>
 </html>
 
+
+
+    <script>
+        // تهيئة Firebase مع بيانات مشروعك
+        const firebaseConfig = {
+            apiKey: "AIzaSyDz3JdIH912bWhr26f7z8NJUFePH8706jE",
+            authDomain: "script-arab.firebaseapp.com",
+            projectId: "script-arab",
+            storageBucket: "script-arab.appspot.com",
+            messagingSenderId: "81024404977",
+            appId: "1:81024404977:web:80173af0ef8001f1b9c850",
+            measurementId: "G-L39PYJ4N80"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        // مراقبة حالة المصادقة
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                // User is signed in
+                showContent();
+            } else {
+                // User is signed out
+                showLogin();
+            }
+        });
+
+        // عرض واجهة الدخول مع تأثير حركي
+        function showLogin() {
+            const content = document.getElementById('content');
+            const loginContainer = document.getElementById('login-container');
+            
+            content.classList.remove('show');
+            content.classList.remove('animate__fadeIn');
+            
+            setTimeout(() => {
+                content.style.display = 'none';
+                loginContainer.style.display = 'block';
+                loginContainer.classList.remove('hidden');
+                loginContainer.classList.add('animate__fadeIn');
+            }, 500);
+        }
+
+        // عرض المحتوى المحمي مع تأثير حركي
+        function showContent() {
+            const content = document.getElementById('content');
+            const loginContainer = document.getElementById('login-container');
+            
+            loginContainer.classList.add('hidden');
+            loginContainer.classList.remove('animate__fadeIn');
+            
+            setTimeout(() => {
+                loginContainer.style.display = 'none';
+                content.style.display = 'block';
+                
+                setTimeout(() => {
+                    content.classList.add('show');
+                    content.classList.add('animate__fadeIn');
+                }, 50);
+            }, 500);
+        }
+
+        // وظيفة تسجيل الدخول
+        function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('error-message');
+            const successMessage = document.getElementById('success-message');
+            const loginBtn = document.getElementById('login-btn');
+            const loading = document.getElementById('login-loading');
+            
+            // إظهار حالة التحميل
+            loginBtn.disabled = true;
+            loading.classList.add('show');
+            errorMessage.textContent = '';
+            successMessage.textContent = '';
+            
+            firebase.auth().signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // تم تسجيل الدخول بنجاح
+                    successMessage.textContent = 'جاري تحويلك إلى الصفحة الرئيسية...';
+                    
+                    // إخفاء حالة التحميل بعد ثانية
+                    setTimeout(() => {
+                        loading.classList.remove('show');
+                        loginBtn.disabled = false;
+                    }, 1000);
+                })
+                .catch((error) => {
+                    // خطأ في تسجيل الدخول
+                    loading.classList.remove('show');
+                    loginBtn.disabled = false;
+                    errorMessage.textContent = getAuthErrorMessage(error.code);
+                });
+        }
+
+        // وظيفة تسجيل الخروج
+        function logout() {
+            const loading = document.getElementById('content-loading');
+            loading.classList.add('show');
+            
+            firebase.auth().signOut().then(() => {
+                // تم تسجيل الخروج بنجاح
+                setTimeout(() => {
+                    loading.classList.remove('show');
+                }, 1000);
+            }).catch((error) => {
+                loading.classList.remove('show');
+                console.error('Error signing out:', error);
+            });
+        }
+
+        // تحويل أكواد الخطأ إلى رسائل مفهومة
+        function getAuthErrorMessage(errorCode) {
+            switch(errorCode) {
+                case 'auth/invalid-email':
+                    return 'البريد الإلكتروني غير صحيح';
+                case 'auth/user-disabled':
+                    return 'هذا الحساب معطل';
+                case 'auth/user-not-found':
+                    return 'لا يوجد حساب بهذا البريد الإلكتروني';
+                case 'auth/wrong-password':
+                    return 'مفتاح الاشتراك غير صحيح';
+                case 'auth/too-many-requests':
+                    return 'عدد كبير جدًا من المحاولات، يرجى الانتظار قبل إعادة المحاولة';
+                default:
+                    return 'حدث خطأ أثناء محاولة الدخول';
+            }
+        }
+
+        // إضافة تأثير عند الضغط على الأزرار
+        document.addEventListener('DOMContentLoaded', function() {
+            const buttons = document.querySelectorAll('button');
+            
+            buttons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    // تأثير النبض
+                    this.classList.add('animate__animated', 'animate__pulse');
+                    
+                    // إزالة الكلاس بعد انتهاء الحركة
+                    setTimeout(() => {
+                        this.classList.remove('animate__pulse');
+                    }, 500);
+                });
+            });
+            
+            // إضافة تأثير عند التركيز على حقول الإدخال
+            const inputs = document.querySelectorAll('input');
+            
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentElement.querySelector('.input-icon').classList.add('animate__animated', 'animate__swing');
+                    
+                    setTimeout(() => {
+                        this.parentElement.querySelector('.input-icon').classList.remove('animate__swing');
+                    }, 1000);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
