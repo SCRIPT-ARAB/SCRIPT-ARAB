@@ -173,6 +173,17 @@
             color: #00ff88;
         }
 
+        .logout-btn {
+            margin-right: 10px;
+            background: var(--error-color);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
         /* Dashboard styles */
         .container {
             max-width: 500px;
@@ -249,6 +260,16 @@
             color: #000;
         }
 
+        .refresh-btn {
+            background: linear-gradient(45deg, #ffc107, #ff9800);
+            margin-top: 10px;
+        }
+
+        .clear-history-btn {
+            background: linear-gradient(45deg, #ff4444, #d50000);
+            margin-top: 10px;
+        }
+
         .status-display {
             text-align: center;
             margin-bottom: 30px;
@@ -303,6 +324,20 @@
             border-radius: 15px;
             padding: 20px;
             margin-top: 20px;
+            position: relative;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .history-title {
+            color: #00ff88;
+            font-size: 1.1em;
+            font-weight: bold;
         }
 
         .history-grid {
@@ -399,6 +434,32 @@
             border-left: 3px solid #ff4444;
         }
 
+        .missed-note {
+            background: rgba(255, 68, 68, 0.1);
+            border-radius: 8px;
+            padding: 10px;
+            margin: 10px 0;
+            text-align: center;
+            color: #ff4444;
+            border: 1px solid #ff4444;
+            display: none;
+        }
+
+        .clear-history-btn {
+            background: rgba(255, 68, 68, 0.2);
+            color: #ff4444;
+            border: 1px solid #ff4444;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .clear-history-btn:hover {
+            background: rgba(255, 68, 68, 0.4);
+        }
+
         @media (max-width: 480px) {
             .container {
                 padding: 15px;
@@ -454,6 +515,9 @@
 
     <!-- Key Timer (Hidden by default) -->
     <div class="key-timer" id="key-timer" style="display: none;">
+        <button class="logout-btn" id="logout-btn">
+            <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
+        </button>
         <i class="fas fa-clock"></i>
         <span id="expires-in">00:00:00</span>
     </div>
@@ -511,6 +575,11 @@
                    maxlength="12">
             
             <button class="control-btn" id="connectBtn">🔗 اتصال بالحساب</button>
+            <button class="control-btn refresh-btn" id="refreshBtn">🔄 تنشيط الحساب من جديد</button>
+            
+            <div class="missed-note" id="missedNote">
+                ⚠️ لاحظت أنك فوتت بعض التوقعات! اضغط على زر تنشيط الحساب لتجنب الخسارة المستمرة
+            </div>
         </div>
 
         <div style="background: rgba(255, 255, 255, 0.03); border-radius: 20px; padding: 25px; margin-bottom: 20px;">
@@ -533,13 +602,16 @@
                 التوقع القادم خلال: <span id="next-prediction">7</span> ثواني
             </div>
 
-            <button class="control-btn" id="startBtn">🚀 بدء التحليل</button>
+            <button class="control-btn" id="startBtn" disabled>🚀 بدء التحليل</button>
             <button class="control-btn btn-stop" id="stopBtn" style="display: none;">⏹️ إيقاف التحليل</button>
         </div>
 
         <div class="history-panel">
-            <div style="color: #00ff88; font-size: 1.1em; font-weight: bold; margin-bottom: 15px; text-align: center;">
-                📈 سجل التوقعات الأخيرة
+            <div class="history-header">
+                <div class="history-title">📈 سجل التوقعات الأخيرة</div>
+                <button class="clear-history-btn" id="clearHistoryBtn">
+                    <i class="fas fa-trash"></i> مسح السجل
+                </button>
             </div>
             <div class="history-grid" id="historyGrid">
                 <!-- سيتم ملؤها بـ JavaScript -->
@@ -572,6 +644,7 @@
         const dashboard = document.getElementById('dashboard');
         const keyTimer = document.getElementById('key-timer');
         const expiresInElement = document.getElementById('expires-in');
+        const logoutBtn = document.getElementById('logout-btn');
 
         // Session variables
         let currentKey = null;
@@ -710,6 +783,9 @@
             }
         });
 
+        // Logout button handler
+        logoutBtn.addEventListener('click', logout);
+
         // Initialize the script
         function initScript() {
             const predictor = new AviatorPredictor();
@@ -724,6 +800,8 @@
                 this.predictionInterval = null;
                 this.countdownInterval = null;
                 this.countdownValue = 7;
+                this.missedPredictions = 0;
+                this.lastPredictionTime = null;
                 
                 this.initElements();
                 this.bindEvents();
@@ -733,6 +811,7 @@
                 this.elements = {
                     accountId: document.getElementById('accountId'),
                     connectBtn: document.getElementById('connectBtn'),
+                    refreshBtn: document.getElementById('refreshBtn'),
                     startBtn: document.getElementById('startBtn'),
                     stopBtn: document.getElementById('stopBtn'),
                     predictionValue: document.getElementById('predictionValue'),
@@ -740,14 +819,18 @@
                     confidenceText: document.getElementById('confidenceText'),
                     historyGrid: document.getElementById('historyGrid'),
                     countdown: document.getElementById('countdown'),
-                    nextPrediction: document.getElementById('next-prediction')
+                    nextPrediction: document.getElementById('next-prediction'),
+                    missedNote: document.getElementById('missedNote'),
+                    clearHistoryBtn: document.getElementById('clearHistoryBtn')
                 };
             }
 
             bindEvents() {
                 this.elements.connectBtn.addEventListener('click', () => this.connectToAccount());
+                this.elements.refreshBtn.addEventListener('click', () => this.refreshAccount());
                 this.elements.startBtn.addEventListener('click', () => this.startAnalysis());
                 this.elements.stopBtn.addEventListener('click', () => this.stopAnalysis());
+                this.elements.clearHistoryBtn.addEventListener('click', () => this.clearHistory());
                 
                 // Allow only numbers in account ID (9-12 digits)
                 this.elements.accountId.addEventListener('input', (e) => {
@@ -772,6 +855,34 @@
                     this.elements.startBtn.disabled = false;
                     alert(`تم الاتصال بنجاح بالحساب ID: ${accountId}`);
                 }, 2000);
+            }
+
+            refreshAccount() {
+                if (!this.accountConnected) {
+                    alert('يرجى الاتصال بالحساب أولاً');
+                    return;
+                }
+
+                this.elements.refreshBtn.textContent = '🔄 جاري التنشيط...';
+                this.elements.refreshBtn.disabled = true;
+                
+                setTimeout(() => {
+                    this.missedPredictions = 0;
+                    this.elements.missedNote.style.display = 'none';
+                    this.elements.refreshBtn.textContent = '✅ تم تنشيط الحساب';
+                    this.elements.refreshBtn.disabled = false;
+                    
+                    // Reset after 2 seconds
+                    setTimeout(() => {
+                        this.elements.refreshBtn.textContent = '🔄 تنشيط الحساب من جديد';
+                    }, 2000);
+                }, 1500);
+            }
+
+            clearHistory() {
+                this.predictions = [];
+                this.updateHistory();
+                alert('تم مسح سجل التوقعات بنجاح');
             }
 
             startAnalysis() {
@@ -820,6 +931,19 @@
 
             generatePrediction() {
                 if (!this.isActive) return;
+                
+                // Check if user missed previous predictions
+                if (this.lastPredictionTime) {
+                    const timeSinceLast = (new Date() - this.lastPredictionTime) / 1000;
+                    if (timeSinceLast > 15) { // More than 15 seconds since last prediction
+                        this.missedPredictions++;
+                        if (this.missedPredictions >= 3) {
+                            this.elements.missedNote.style.display = 'block';
+                        }
+                    }
+                }
+                
+                this.lastPredictionTime = new Date();
                 
                 // More realistic prediction algorithm
                 let prediction;
