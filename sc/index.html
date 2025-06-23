@@ -650,6 +650,7 @@
         let currentKey = null;
         let keyExpirationTimer = null;
         let keyExpirationTime = null;
+        let keyCheckInterval = null; // Interval for checking key status
 
         // Check active session on load
         function checkActiveSession() {
@@ -682,6 +683,10 @@
                 clearInterval(keyExpirationTimer);
                 keyExpirationTimer = null;
             }
+            if (keyCheckInterval) {
+                clearInterval(keyCheckInterval);
+                keyCheckInterval = null;
+            }
         }
 
         // Format time
@@ -706,6 +711,45 @@
             }
         }
 
+        // Check key status in Firebase
+        async function checkKeyStatus(key) {
+            try {
+                const snapshot = await activationKeysRef.where('key', '==', key).get();
+                
+                if (snapshot.empty) {
+                    return { valid: false, message: 'مفتاح التفعيل غير موجود' };
+                }
+                
+                const keyData = snapshot.docs[0].data();
+                
+                if (!keyData.isActive) {
+                    return { valid: false, message: 'مفتاح التفعيل غير مفعل' };
+                }
+                
+                return { valid: true, keyData };
+            } catch (error) {
+                console.error('Error checking key status:', error);
+                return { valid: false, message: 'حدث خطأ أثناء التحقق من حالة المفتاح' };
+            }
+        }
+
+        // Start periodic key status check (every minute)
+        function startKeyStatusChecker() {
+            if (keyCheckInterval) clearInterval(keyCheckInterval);
+            
+            keyCheckInterval = setInterval(async () => {
+                if (!currentKey) return;
+                
+                const { valid, message } = await checkKeyStatus(currentKey);
+                if (!valid) {
+                    // Show error message and logout
+                    errorMessage.textContent = message;
+                    errorMessage.style.display = 'block';
+                    logout();
+                }
+            }, 60000); // Check every minute
+        }
+
         // Activate key
         function activateKey(key, expirationDuration) {
             currentKey = key;
@@ -719,6 +763,9 @@
                 const remainingTime = keyExpirationTime - new Date().getTime();
                 updateExpirationTimer(remainingTime);
             }, 1000);
+            
+            // Start periodic key status check
+            startKeyStatusChecker();
             
             // Show dashboard and hide login
             loginPage.style.display = 'none';
@@ -748,16 +795,10 @@
             errorMessage.style.display = 'none';
             
             try {
-                const snapshot = await activationKeysRef.where('key', '==', key).get();
+                const { valid, message, keyData } = await checkKeyStatus(key);
                 
-                if (snapshot.empty) {
-                    throw new Error('مفتاح التفعيل غير صحيح');
-                }
-                
-                const keyData = snapshot.docs[0].data();
-                
-                if (!keyData.isActive) {
-                    throw new Error('مفتاح التفعيل غير مفعل');
+                if (!valid) {
+                    throw new Error(message);
                 }
                 
                 if (keyData.maxActivations && keyData.maxActivations > 0) {
@@ -766,7 +807,7 @@
                         throw new Error('تم تجاوز الحد الأقصى لتفعيلات هذا المفتاح');
                     }
                     
-                    await snapshot.docs[0].ref.update({
+                    await activationKeysRef.doc(keyData.id).update({
                         activationsCount: firebase.firestore.FieldValue.increment(1)
                     });
                 }
