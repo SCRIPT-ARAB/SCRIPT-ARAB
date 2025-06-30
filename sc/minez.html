@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام توقع Gems Mines</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #6c5ce7;
+            --secondary-color: #a29bfe;
+            --accent-color: #fd79a8;
+            --dark-color: #2d3436;
+            --light-color: #f5f6fa;
+            --success-color: #00b894;
+            --warning-color: #fdcb6e;
+            --error-color: #d63031;
+            --blur-intensity: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0e1a 0%, #1a1f2e 100%);
+            color: white;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Login Page Styles */
+        .login-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            z-index: 1000;
+        }
+
+        .bubbles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+            top: 0;
+            left: 0;
+        }
+
+        .bubble {
+            position: absolute;
+            bottom: -100px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: rise 15s infinite ease-in;
+        }
+
+        @keyframes rise {
+            0% { bottom: -100px; transform: translateX(0); }
+            50% { transform: translateX(100px); }
+            100% { bottom: 1080px; transform: translateX(-200px); }
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(var(--blur-intensity));
+            -webkit-backdrop-filter: blur(var(--blur-intensity));
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            padding: 2rem;
+            width: 90%;
+            max-width: 500px;
+            z-index: 1;
+            transition: all 0.3s ease;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo i {
+            font-size: 3rem;
+            color: var(--light-color);
+            margin-bottom: 1rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: var(--light-color);
+            font-size: 1rem;
+        }
+
+        .btn {
+            display: inline-block;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 0.5rem;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-stop {
+            background: var(--error-color);
+        }
+
+        .error-message {
+            color: var(--error-color);
+            background: rgba(214, 48, 49, 0.1);
+            padding: 0.8rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        /* Key Timer */
+        .key-timer {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px 15px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            z-index: 100;
+        }
+
+        .key-timer i {
+            color: #00ff88;
+        }
+
+        .logout-btn {
+            margin-right: 10px;
+            background: var(--error-color);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        /* Dashboard styles */
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            padding-top: 70px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            background: linear-gradient(45deg, #00ff88, #00ccff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .warning-box {
+            background: rgba(255, 193, 7, 0.1);
+            border: 2px solid var(--warning-color);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            animation: pulse 2s infinite;
+        }
+
+        .account-panel {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .account-title {
+            color: #00ff88;
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .account-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid rgba(0, 255, 136, 0.3);
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            font-size: 1.1em;
+            text-align: center;
+        }
+
+        .control-btn {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.2em;
+            cursor: pointer;
+            margin-bottom: 15px;
+            background: linear-gradient(45deg, #00ff88, #00ccff);
+            color: #000;
+        }
+
+        .refresh-btn {
+            background: linear-gradient(45deg, #ffc107, #ff9800);
+            margin-top: 10px;
+        }
+
+        .clear-history-btn {
+            background: linear-gradient(45deg, #ff4444, #d50000);
+            margin-top: 10px;
+        }
+
+        .status-display {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .status-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5em;
+            border: 4px solid #ffc107;
+            background: linear-gradient(45deg, rgba(255, 193, 7, 0.1), rgba(255, 193, 7, 0.2));
+            animation: pulse 2s infinite;
+        }
+
+        .prediction-display {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .confidence-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff4444, #ffc107, #00ff88);
+            border-radius: 4px;
+        }
+
+        .history-panel {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            position: relative;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .history-title {
+            color: #00ff88;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        .history-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+        }
+
+        .history-item {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            font-size: 0.9em;
+        }
+
+        .history-item.success {
+            border: 1px solid #00ff88;
+            color: #00ff88;
+        }
+
+        .history-item.failed {
+            border: 1px solid #ff4444;
+            color: #ff4444;
+        }
+
+        .countdown {
+            font-size: 1.2em;
+            margin: 10px 0;
+            color: #00ccff;
+        }
+
+        .instructions {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 15px;
+            margin: 15px 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .instructions h3 {
+            color: #00ff88;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .instructions ul {
+            padding-right: 15px;
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+
+        .strategy-tips {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 15px;
+            margin: 15px 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .strategy-tips h3 {
+            color: #00ff88;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .strategy-tips ul {
+            padding-right: 15px;
+        }
+
+        .strategy-tips li {
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+
+        .tip-item {
+            background: rgba(0, 255, 136, 0.1);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-left: 3px solid #00ff88;
+        }
+
+        .tip-item.warning {
+            background: rgba(255, 193, 7, 0.1);
+            border-left: 3px solid #ffc107;
+        }
+
+        .tip-item.danger {
+            background: rgba(255, 68, 68, 0.1);
+            border-left: 3px solid #ff4444;
+        }
+
+        .missed-note {
+            background: rgba(255, 68, 68, 0.1);
+            border-radius: 8px;
+            padding: 10px;
+            margin: 10px 0;
+            text-align: center;
+            color: #ff4444;
+            border: 1px solid #ff4444;
+            display: none;
+        }
+
+        .clear-history-btn {
+            background: rgba(255, 68, 68, 0.2);
+            color: #ff4444;
+            border: 1px solid #ff4444;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .clear-history-btn:hover {
+            background: rgba(255, 68, 68, 0.4);
+        }
+
+        /* Gems Mines Grid */
+        #grid {
+            display: grid;
+            grid-template-columns: repeat(5, 60px);
+            grid-gap: 10px;
+            justify-content: center;
+            margin: 20px auto;
+        }
+
+        .cell {
+            width: 60px;
+            height: 60px;
+            background: #1e2a3a;
+            border: 2px solid #444;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 24px;
+            line-height: 60px;
+            user-select: none;
+            transition: all 0.3s;
+        }
+
+        .cell.revealed {
+            background: #222;
+            cursor: default;
+        }
+
+        .cell.gem {
+            color: #00eaff;
+        }
+
+        .cell.mine {
+            color: red;
+        }
+
+        .prediction-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #00ff88;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .status-circle {
+                width: 100px;
+                height: 100px;
+            }
+            
+            #grid {
+                grid-template-columns: repeat(5, 50px);
+            }
+            
+            .cell {
+                width: 50px;
+                height: 50px;
+                line-height: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Page -->
+    <div class="login-page" id="login-page">
+        <div class="bubbles">
+            <div class="bubble"></div>
+            <div class="bubble"></div>
+            <div class="bubble"></div>
+            <div class="bubble"></div>
+        </div>
+        
+        <div class="glass-card">
+            <div class="logo">
+                <i class="fas fa-key"></i>
+                <h1>نظام الدخول بالمفتاح</h1>
+                <p>أدخل مفتاح التفعيل للوصول إلى النظام</p>
+            </div>
+
+            <form id="login-form">
+                <div class="form-group">
+                    <input type="text" id="activation-key" class="form-control" placeholder="أدخل مفتاح التفعيل" required>
+                </div>
+
+                <div class="error-message" id="error-message"></div>
+
+                <button type="submit" class="btn" id="login-btn">
+                    <span>تسجيل الدخول</span>
+                </button>
+            </form>
+
+            <div style="text-align: center; margin-top: 1.5rem;">
+                <a href="https://t.me/your_bot" target="_blank" style="color: var(--accent-color);">
+                    <i class="fas fa-shopping-cart"></i> شراء مفتاح جديد
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Key Timer (Hidden by default) -->
+    <div class="key-timer" id="key-timer" style="display: none;">
+        <button class="logout-btn" id="logout-btn">
+            <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
+        </button>
+        <i class="fas fa-clock"></i>
+        <span id="expires-in">00:00:00</span>
+    </div>
+
+    <!-- Dashboard Content -->
+    <div class="container" id="dashboard" style="display: none;">
+        <div class="header">
+            <h1>💎 GEMS MINES PREDICTOR</h1>
+            <div style="color: #00ff88; font-size: 1.1em; font-weight: bold;">نظام توقع الجواهر والألغام</div>
+        </div>
+
+        <div class="warning-box">
+             ⚠️ تنبيه: اذا قمت بمشاركه مفتاح التفعيل الخاص بك سوف يظهر لنا انه تم فتح جلسه جديده بعنوان مختلف و سوف يتم ايقاف المفتاح في الحال و حظرك من شراء مفتاح جديد
+        </div>
+
+        <div class="instructions">
+            <h3>تعليمات هامة للاستخدام الآمن</h3>
+            <ul>
+                <li>• لا تستخدم أكثر من 10% من رصيدك في الرهان الواحد</li>
+                <li>• استخدم استراتيجية مضاعفة الرهان بحذر</li>
+                <li>• توقف عند تحقيق ربح معقول (5-10 مرات الرهان الأولي)</li>
+                <li>• تجنب اللعب عندما تكون الثقة أقل من 70%</li>
+                <li>• خذ فترات راحة كل 5 دقيقة</li>
+            </ul>
+        </div>
+
+        <div class="strategy-tips">
+            <h3>نصائح استراتيجية ذكية</h3>
+            
+            <div class="tip-item">
+                <strong>استراتيجية الأمان:</strong>
+                <p>اللعب على خانات قليلة (1-3) عندما تكون الثقة فوق 80%</p>
+            </div>
+            
+            <div class="tip-item warning">
+                <strong>استراتيجية متوسطة المخاطرة:</strong>
+                <p>اللعب على 3-5 خانات مع ثقة 70% فما فوق</p>
+            </div>
+            
+            <div class="tip-item danger">
+                <strong>استراتيجية عالية المخاطرة:</strong>
+                <p>اللعب على أكثر من 5 خانات برأس مال صغير وثقة عالية</p>
+            </div>
+        </div>
+
+        <div class="account-panel">
+            <div class="account-title">
+                🏆 ربط حساب 1xBet
+            </div>
+            
+            <input type="text" 
+                   id="accountId" 
+                   class="account-input" 
+                   placeholder="أدخل ID حسابك (9-12 رقم)"
+                   maxlength="12">
+            
+            <button class="control-btn" id="connectBtn">🔗 اتصال بالحساب</button>
+            <button class="control-btn refresh-btn" id="refreshBtn">🔄 تنشيط الحساب من جديد</button>
+            
+            <div class="missed-note" id="missedNote">
+                ⚠️ لاحظت أنك فوتت بعض التوقعات! اضغط على زر تنشيط الحساب لتجنب الخسارة المستمرة
+            </div>
+        </div>
+
+        <div style="background: rgba(255, 255, 255, 0.03); border-radius: 20px; padding: 25px; margin-bottom: 20px;">
+            <div class="status-display">
+                <div class="status-circle">⏳</div>
+                <div style="color: #ffc107; font-size: 1.3em; font-weight: bold;">في انتظار بدء التحليل</div>
+            </div>
+
+            <div class="prediction-display">
+                <div>📊 التوقع الحالي</div>
+                <div class="prediction-value" id="predictionValue">--</div>
+                <div>مستوى الثقة</div>
+                <div class="confidence-bar">
+                    <div class="confidence-fill" id="confidenceFill" style="width: 0%"></div>
+                </div>
+                <div id="confidenceText">0%</div>
+            </div>
+
+            <div id="grid"></div>
+
+            <div class="countdown" id="countdown" style="display: none;">
+                التوقع القادم خلال: <span id="next-prediction">7</span> ثواني
+            </div>
+
+            <button class="control-btn" id="startBtn" disabled>🚀 بدء التحليل</button>
+            <button class="control-btn btn-stop" id="stopBtn" style="display: none;">⏹️ إيقاف التحليل</button>
+        </div>
+
+        <div class="history-panel">
+            <div class="history-header">
+                <div class="history-title">📈 سجل التوقعات الأخيرة</div>
+                <button class="clear-history-btn" id="clearHistoryBtn">
+                    <i class="fas fa-trash"></i> مسح السجل
+                </button>
+            </div>
+            <div class="history-grid" id="historyGrid">
+                <!-- سيتم ملؤها بـ JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDz3JdIH912bWhr26f7z8NJUFePH8706jE",
+            authDomain: "script-arab.firebaseapp.com",
+            projectId: "script-arab",
+            storageBucket: "script-arab.appspot.com",
+            messagingSenderId: "81024404977",
+            appId: "1:81024404977:web:80173af0ef8001f1b9c850",
+            measurementId: "G-L39PYJ4N80"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const activationKeysRef = db.collection("activationKeys2");
+
+        // DOM Elements
+        const loginPage = document.getElementById('login-page');
+        const loginForm = document.getElementById('login-form');
+        const activationKeyInput = document.getElementById('activation-key');
+        const errorMessage = document.getElementById('error-message');
+        const dashboard = document.getElementById('dashboard');
+        const keyTimer = document.getElementById('key-timer');
+        const expiresInElement = document.getElementById('expires-in');
+        const logoutBtn = document.getElementById('logout-btn');
+
+        // Session variables
+        let currentKey = null;
+        let keyExpirationTimer = null;
+        let keyExpirationTime = null;
+        let keyCheckInterval = null;
+
+        // Check active session on load
+        function checkActiveSession() {
+            const savedKey = localStorage.getItem('activationKey');
+            const savedExpiration = localStorage.getItem('keyExpiration');
+            
+            if (savedKey && savedExpiration) {
+                const expirationTime = new Date(savedExpiration).getTime();
+                const now = new Date().getTime();
+                
+                if (now < expirationTime) {
+                    currentKey = savedKey;
+                    keyExpirationTime = expirationTime;
+                    activateKey(savedKey, expirationTime - now);
+                    return true;
+                } else {
+                    clearSession();
+                    return false;
+                }
+            }
+            return false;
+        }
+
+        // Clear session
+        function clearSession() {
+            localStorage.removeItem('activationKey');
+            localStorage.removeItem('keyExpiration');
+            currentKey = null;
+            if (keyExpirationTimer) {
+                clearInterval(keyExpirationTimer);
+                keyExpirationTimer = null;
+            }
+            if (keyCheckInterval) {
+                clearInterval(keyCheckInterval);
+                keyCheckInterval = null;
+            }
+        }
+
+        // Format time
+        function formatTime(ms) {
+            const totalSeconds = Math.floor(ms / 1000);
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // Update timer display
+        function updateExpirationTimer(remainingTime) {
+            if (remainingTime <= 0) {
+                expiresInElement.textContent = "00:00:00";
+                setTimeout(() => {
+                    logout();
+                }, 1000);
+            } else {
+                expiresInElement.textContent = formatTime(remainingTime);
+            }
+        }
+
+        // Check key status in Firebase
+        async function checkKeyStatus(key) {
+            try {
+                const snapshot = await activationKeysRef.where('key', '==', key).get();
+                
+                if (snapshot.empty) {
+                    return { valid: false, message: 'مفتاح التفعيل غير موجود' };
+                }
+                
+                const keyData = snapshot.docs[0].data();
+                
+                if (!keyData.isActive) {
+                    return { valid: false, message: 'مفتاح التفعيل غير مفعل' };
+                }
+                
+                return { valid: true, keyData };
+            } catch (error) {
+                console.error('Error checking key status:', error);
+                return { valid: false, message: 'حدث خطأ أثناء التحقق من حالة المفتاح' };
+            }
+        }
+
+        // Start periodic key status check (every minute)
+        function startKeyStatusChecker() {
+            if (keyCheckInterval) clearInterval(keyCheckInterval);
+            
+            keyCheckInterval = setInterval(async () => {
+                if (!currentKey) return;
+                
+                const { valid, message } = await checkKeyStatus(currentKey);
+                if (!valid) {
+                    errorMessage.textContent = message;
+                    errorMessage.style.display = 'block';
+                    logout();
+                }
+            }, 60000);
+        }
+
+        // Activate key
+        function activateKey(key, expirationDuration) {
+            currentKey = key;
+            keyExpirationTime = new Date().getTime() + expirationDuration;
+            
+            localStorage.setItem('activationKey', key);
+            localStorage.setItem('keyExpiration', new Date(keyExpirationTime).toISOString());
+            
+            updateExpirationTimer(expirationDuration);
+            keyExpirationTimer = setInterval(() => {
+                const remainingTime = keyExpirationTime - new Date().getTime();
+                updateExpirationTimer(remainingTime);
+            }, 1000);
+            
+            startKeyStatusChecker();
+            
+            loginPage.style.display = 'none';
+            dashboard.style.display = 'block';
+            keyTimer.style.display = 'flex';
+            
+            initScript();
+        }
+
+        // Logout
+        function logout() {
+            clearSession();
+            loginPage.style.display = 'flex';
+            dashboard.style.display = 'none';
+            keyTimer.style.display = 'none';
+            activationKeyInput.value = '';
+        }
+
+        // Login form handler
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const key = activationKeyInput.value.trim();
+            if (!key) return;
+            
+            errorMessage.style.display = 'none';
+            
+            try {
+                const { valid, message, keyData } = await checkKeyStatus(key);
+                
+                if (!valid) {
+                    throw new Error(message);
+                }
+                
+                if (keyData.maxActivations && keyData.maxActivations > 0) {
+                    const activationsCount = keyData.activationsCount || 0;
+                    if (activationsCount >= keyData.maxActivations) {
+                        throw new Error('تم تجاوز الحد الأقصى لتفعيلات هذا المفتاح');
+                    }
+                    
+                    await activationKeysRef.doc(keyData.id).update({
+                        activationsCount: firebase.firestore.FieldValue.increment(1)
+                    });
+                }
+                
+                const expirationHours = keyData.expirationHours || 24;
+                const expirationDuration = expirationHours * 60 * 60 * 1000;
+                
+                activateKey(key, expirationDuration);
+                
+            } catch (error) {
+                errorMessage.textContent = error.message;
+                errorMessage.style.display = 'block';
+                console.error('Login error:', error);
+            }
+        });
+
+        // Logout button handler
+        logoutBtn.addEventListener('click', logout);
+
+        // Initialize the script
+        function initScript() {
+            const predictor = new GemsMinesPredictor();
+        }
+
+        // Gems Mines Predictor Class
+        class GemsMinesPredictor {
+            constructor() {
+                this.isActive = false;
+                this.predictions = [];
+                this.accountConnected = false;
+                this.predictionInterval = null;
+                this.countdownInterval = null;
+                this.countdownValue = 7;
+                this.missedPredictions = 0;
+                this.lastPredictionTime = null;
+                this.gridSize = 5;
+                this.totalCells = this.gridSize * this.gridSize;
+                this.totalMines = 5;
+                this.totalGems = this.totalCells - this.totalMines;
+                this.currentPrediction = null;
+                
+                this.initElements();
+                this.bindEvents();
+                this.createGrid();
+            }
+
+            initElements() {
+                this.elements = {
+                    accountId: document.getElementById('accountId'),
+                    connectBtn: document.getElementById('connectBtn'),
+                    refreshBtn: document.getElementById('refreshBtn'),
+                    startBtn: document.getElementById('startBtn'),
+                    stopBtn: document.getElementById('stopBtn'),
+                    predictionValue: document.getElementById('predictionValue'),
+                    confidenceFill: document.getElementById('confidenceFill'),
+                    confidenceText: document.getElementById('confidenceText'),
+                    historyGrid: document.getElementById('historyGrid'),
+                    countdown: document.getElementById('countdown'),
+                    nextPrediction: document.getElementById('next-prediction'),
+                    missedNote: document.getElementById('missedNote'),
+                    clearHistoryBtn: document.getElementById('clearHistoryBtn'),
+                    grid: document.getElementById('grid')
+                };
+            }
+
+            bindEvents() {
+                this.elements.connectBtn.addEventListener('click', () => this.connectToAccount());
+                this.elements.refreshBtn.addEventListener('click', () => this.refreshAccount());
+                this.elements.startBtn.addEventListener('click', () => this.startAnalysis());
+                this.elements.stopBtn.addEventListener('click', () => this.stopAnalysis());
+                this.elements.clearHistoryBtn.addEventListener('click', () => this.clearHistory());
+                
+                this.elements.accountId.addEventListener('input', (e) => {
+                    e.target.value = e.target.value.replace(/[^0-9]/g, '');
+                });
+            }
+
+            createGrid() {
+                this.elements.grid.innerHTML = '';
+                
+                for (let i = 0; i < this.totalCells; i++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.index = i;
+                    this.elements.grid.appendChild(cell);
+                }
+            }
+
+            connectToAccount() {
+                const accountId = this.elements.accountId.value.trim();
+                
+                if (accountId.length < 9 || accountId.length > 12) {
+                    alert('يرجى إدخال بين 9 إلى 12 رقم لـ ID الحساب');
+                    return;
+                }
+
+                this.elements.connectBtn.textContent = '🔄 جاري الاتصال بالخادم...';
+                this.elements.connectBtn.disabled = true;
+                
+                setTimeout(() => {
+                    this.accountConnected = true;
+                    this.elements.connectBtn.textContent = '✅ الحساب متصل';
+                    this.elements.startBtn.disabled = false;
+                    alert(`تم الاتصال بنجاح بالحساب ID: ${accountId}`);
+                }, 2000);
+            }
+
+            refreshAccount() {
+                if (!this.accountConnected) {
+                    alert('يرجى الاتصال بالحساب أولاً');
+                    return;
+                }
+
+                this.elements.refreshBtn.textContent = '🔄 جاري التنشيط...';
+                this.elements.refreshBtn.disabled = true;
+                
+                setTimeout(() => {
+                    this.missedPredictions = 0;
+                    this.elements.missedNote.style.display = 'none';
+                    this.elements.refreshBtn.textContent = '✅ تم تنشيط الحساب';
+                    this.elements.refreshBtn.disabled = false;
+                    
+                    setTimeout(() => {
+                        this.elements.refreshBtn.textContent = '🔄 تنشيط الحساب من جديد';
+                    }, 2000);
+                }, 1500);
+            }
+
+            clearHistory() {
+                this.predictions = [];
+                this.updateHistory();
+                alert('تم مسح سجل التوقعات بنجاح');
+            }
+
+            startAnalysis() {
+                if (!this.accountConnected) {
+                    alert('يرجى الاتصال بالحساب أولاً');
+                    return;
+                }
+
+                this.isActive = true;
+                this.elements.startBtn.style.display = 'none';
+                this.elements.stopBtn.style.display = 'block';
+                
+                this.generatePrediction();
+            }
+
+            startCountdown() {
+                this.countdownValue = 7;
+                this.elements.nextPrediction.textContent = this.countdownValue;
+                this.elements.countdown.style.display = 'block';
+                
+                this.countdownInterval = setInterval(() => {
+                    this.countdownValue--;
+                    this.elements.nextPrediction.textContent = this.countdownValue;
+                    
+                    if (this.countdownValue <= 0) {
+                        clearInterval(this.countdownInterval);
+                        this.generatePrediction();
+                    }
+                }, 1000);
+            }
+
+            stopAnalysis() {
+                this.isActive = false;
+                clearInterval(this.predictionInterval);
+                clearInterval(this.countdownInterval);
+                this.elements.startBtn.style.display = 'block';
+                this.elements.stopBtn.style.display = 'none';
+                this.elements.countdown.style.display = 'none';
+                
+                this.elements.predictionValue.textContent = '--';
+                this.elements.confidenceFill.style.width = '0%';
+                this.elements.confidenceText.textContent = '0%';
+                
+                this.createGrid();
+            }
+
+            generatePrediction() {
+                if (!this.isActive) return;
+                
+                if (this.lastPredictionTime) {
+                    const timeSinceLast = (new Date() - this.lastPredictionTime) / 1000;
+                    if (timeSinceLast > 15) {
+                        this.missedPredictions++;
+                        if (this.missedPredictions >= 3) {
+                            this.elements.missedNote.style.display = 'block';
+                        }
+                    }
+                }
+                
+                this.lastPredictionTime = new Date();
+                
+                // Generate prediction
+                let prediction = [];
+                let mineIndexes = new Set();
+                
+                // Randomly select mine positions
+                while (mineIndexes.size < this.totalMines) {
+                    mineIndexes.add(Math.floor(Math.random() * this.totalCells));
+                }
+                
+                // Create prediction array
+                for (let i = 0; i < this.totalCells; i++) {
+                    prediction.push(mineIndexes.has(i) ? 'mine' : 'gem');
+                }
+                
+                // Calculate confidence (higher for more clustered mines)
+                const confidence = this.calculateConfidence(mineIndexes);
+                
+                this.currentPrediction = prediction;
+                this.displayPrediction(prediction, confidence);
+                this.recordPrediction(prediction, confidence);
+                
+                // Update grid with prediction
+                this.updateGrid(prediction);
+                
+                // Start countdown for next prediction
+                this.startCountdown();
+            }
+
+            calculateConfidence(mineIndexes) {
+                // Calculate how clustered the mines are
+                let totalDistance = 0;
+                const minePositions = Array.from(mineIndexes).map(index => {
+                    return {
+                        row: Math.floor(index / this.gridSize),
+                        col: index % this.gridSize
+                    };
+                });
+
+                // Calculate average distance between mines
+                for (let i = 0; i < minePositions.length; i++) {
+                    for (let j = i + 1; j < minePositions.length; j++) {
+                        const dx = minePositions[i].col - minePositions[j].col;
+                        const dy = minePositions[i].row - minePositions[j].row;
+                        totalDistance += Math.sqrt(dx * dx + dy * dy);
+                    }
+                }
+
+                const avgDistance = totalDistance / (minePositions.length * (minePositions.length - 1) / 2);
+                
+                // Higher confidence for more spread out mines (avgDistance > 2.5)
+                if (avgDistance > 2.5) {
+                    return Math.floor(Math.random() * 20) + 70; // 70-90%
+                } else if (avgDistance > 1.5) {
+                    return Math.floor(Math.random() * 30) + 50; // 50-80%
+                } else {
+                    return Math.floor(Math.random() * 40) + 30; // 30-70%
+                }
+            }
+
+            displayPrediction(prediction, confidence) {
+                const gemCount = prediction.filter(cell => cell === 'gem').length;
+                this.elements.predictionValue.textContent = `${gemCount}/${this.totalCells}`;
+                this.elements.confidenceFill.style.width = `${confidence}%`;
+                this.elements.confidenceText.textContent = `${confidence}%`;
+                
+                if (confidence >= 70) {
+                    this.elements.confidenceText.style.color = '#00ff88';
+                } else if (confidence >= 50) {
+                    this.elements.confidenceText.style.color = '#ffc107';
+                } else {
+                    this.elements.confidenceText.style.color = '#ff4444';
+                }
+            }
+
+            updateGrid(prediction) {
+                const cells = this.elements.grid.querySelectorAll('.cell');
+                
+                cells.forEach((cell, index) => {
+                    cell.className = 'cell';
+                    
+                    if (prediction[index] === 'mine') {
+                        cell.classList.add('mine');
+                        cell.textContent = '💣';
+                    } else {
+                        cell.classList.add('gem');
+                        cell.textContent = '💎';
+                    }
+                });
+            }
+
+            recordPrediction(prediction, confidence) {
+                const gemCount = prediction.filter(cell => cell === 'gem').length;
+                const isSuccessful = gemCount >= (this.totalCells * 0.7); // Consider successful if 70% or more are gems
+                
+                this.predictions.unshift({
+                    value: gemCount,
+                    success: isSuccessful,
+                    confidence: confidence,
+                    timestamp: new Date()
+                });
+                
+                if (this.predictions.length > 15) {
+                    this.predictions.pop();
+                }
+                
+                this.updateHistory();
+            }
+
+            updateHistory() {
+                this.elements.historyGrid.innerHTML = '';
+                
+                this.predictions.forEach(pred => {
+                    const item = document.createElement('div');
+                    item.className = `history-item ${pred.success ? 'success' : 'failed'}`;
+                    item.textContent = pred.value;
+                    this.elements.historyGrid.appendChild(item);
+                });
+            }
+        }
+
+        // Clear session when page is refreshed or closed
+        window.addEventListener('beforeunload', () => {
+            clearSession();
+        });
+
+        // Check for active session on page load
+        window.addEventListener('load', () => {
+            if (!checkActiveSession()) {
+                logout();
+            }
+        });
+    </script>
+</body>
+</html>
