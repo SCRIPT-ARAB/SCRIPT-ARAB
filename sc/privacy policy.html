@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCRIPT ARAB - سياسة الخصوصية</title>
+    <style>
+        :root {
+            --primary-color: #1a3a8f;
+            --secondary-color: #e9c46a;
+            --accent-color: #f4a261;
+            --dark-color: #2a2d34;
+            --light-color: #f8f9fa;
+            --success-color: #2a9d8f;
+            --error-color: #e76f51;
+            --font-primary: 'Tajawal', 'Segoe UI', sans-serif;
+            --font-secondary: 'Montserrat', Arial, sans-serif;
+        }
+
+        @font-face {
+            font-family: 'Tajawal';
+            src: url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
+        }
+
+        @font-face {
+            font-family: 'Montserrat';
+            src: url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap');
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: #f5f7ff;
+            color: var(--dark-color);
+            line-height: 1.8;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), #0a2463);
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxkZWZzPjxwYXR0ZXJuIGlkPSJwYXR0ZXJuIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiIHBhdHRlcm5UcmFuc2Zvcm09InJvdGF0ZSg0NSkiPjxyZWN0IHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjA1KSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNwYXR0ZXJuKSIvPjwvc3ZnPg==');
+            opacity: 0.3;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: inline-block;
+            background: var(--secondary-color);
+            color: var(--primary-color);
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            transform: rotate(-5deg);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            opacity: 0.9;
+        }
+
+        .last-updated {
+            background-color: rgba(0, 0, 0, 0.2);
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        .content-section {
+            background-color: white;
+            border-radius: 12px;
+            padding: 3rem;
+            margin: 2rem 0;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .content-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        .content-section::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary-color), var(--accent-color));
+        }
+
+        h2 {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+        h2::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(to right, var(--secondary-color), var(--accent-color));
+        }
+
+        h3 {
+            color: var(--dark-color);
+            font-size: 1.4rem;
+            margin: 1.8rem 0 1rem;
+        }
+
+        p, li {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: #555;
+        }
+
+        ul, ol {
+            padding-right: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        .highlight {
+            background-color: rgba(233, 196, 106, 0.2);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .note-box {
+            background-color: rgba(42, 157, 143, 0.1);
+            border-right: 4px solid var(--success-color);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .warning-box {
+            background-color: rgba(231, 111, 81, 0.1);
+            border-right: 4px solid var(--error-color);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .box-title {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .box-title svg {
+            margin-left: 0.5rem;
+        }
+
+        .language-switch {
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .language-btn {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-family: var(--font-primary);
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .language-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .language-btn:not(.active):hover {
+            background-color: rgba(26, 58, 143, 0.1);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 3rem;
+            color: #777;
+            font-size: 0.9rem;
+            border-top: 1px solid #eee;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .header {
+                padding: 2rem 0;
+            }
+            
+            .logo {
+                font-size: 2rem;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .content-section {
+                padding: 2rem 1.5rem;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .content-section {
+            animation: fadeIn 0.6s ease forwards;
+        }
+
+        .content-section:nth-child(2) { animation-delay: 0.1s; }
+        .content-section:nth-child(3) { animation-delay: 0.2s; }
+        .content-section:nth-child(4) { animation-delay: 0.3s; }
+        .content-section:nth-child(5) { animation-delay: 0.4s; }
+        .content-section:nth-child(6) { animation-delay: 0.5s; }
+        .content-section:nth-child(7) { animation-delay: 0.6s; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">SCRIPT ARAB</div>
+            <h1>سياسة الخصوصية</h1>
+            <p>نحن نحمي خصوصيتك ونسعى لتقديم أفضل تجربة آمنة لاستخدام خدماتنا</p>
+            <div class="last-updated">آخر تحديث: 10 يوليو 2025</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="language-switch">
+            <button class="language-btn active" data-lang="ar">العربية</button>
+            <button class="language-btn" data-lang="en">English</button>
+        </div>
+
+        <div id="ar-content">
+            <div class="content-section">
+                <h2>1. مقدمة</h2>
+                <p>نحن في <span class="highlight">سكرب العرب (SCRIPT ARAB)</span> نحترم خصوصيتك وملتزمون بحماية بياناتك الشخصية. تنطبق هذه السياسة على خدماتنا وسكربتاتنا التي تعتمد على تحليلات وربط بخوادم تطبيق 1xBet لتحقيق أرباح كبيرة بناءً على استراتيجيات مدروسة.</p>
+            </div>
+
+            <div class="content-section">
+                <h2>2. البيانات التي نقوم بجمعها</h2>
+                <ul>
+                    <li>بيانات الاستخدام (نوع الجهاز، النظام، الوقت والتاريخ)</li>
+                    <li>نتائج التحليلات لأغراض تحسين الأداء</li>
+                    <li>لا يتم تخزين أو مشاركة أي بيانات شخصية بدون إذنك</li>
+                </ul>
+            </div>
+
+            <div class="content-section">
+                <h2>3. استخدام البيانات</h2>
+                <p>يتم استخدام البيانات لأغراض:</p>
+                <ol>
+                    <li>تحسين السكربتات وتحقيق نتائج أفضل</li>
+                    <li>مراقبة أداء النظام</li>
+                    <li>دعم التجربة الربحية للمستخدم</li>
+                </ol>
+            </div>
+
+            <div class="content-section">
+                <h2>4. الاسترداد المالي</h2>
+                <div class="warning-box">
+                    <div class="box-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        ملاحظة هامة
+                    </div>
+                    <p>في حال حدوث خطأ فني من طرفنا، أو قمت بتحويل الأموال بالخطأ:</p>
+                    <ul>
+                        <li>يمكنك طلب استرداد 25% فقط من قيمة التحويل خلال ساعتين من العملية.</li>
+                        <li>يتم تحويل 75% تلقائيًا من المبلغ إلى المنظمات الخيرية ودعم إعمار غزة، ولا يمكن استردادها بعد التحويل.</li>
+                        <li>إذا مرت أكثر من ساعتين على المعاملة أو لم تكن راغبًا في الاسترداد، يمكنك اختيار أي عرض متاح لدينا بنفس قيمة المبلغ المدفوع بدلاً من الاسترداد.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <h2>5. الحماية والأمان</h2>
+                <p>نستخدم بروتوكولات حماية متقدمة لضمان سرية وأمان البيانات المتبادلة.</p>
+                <div class="note-box">
+                    <div class="box-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        </svg>
+                        أمانك أولويتنا
+                    </div>
+                    <p>جميع عمليات نقل البيانات تتم عبر قنوات مشفرة وفق أعلى معايير الأمان العالمية.</p>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <h2>6. الموافقة</h2>
+                <p>باستخدامك لأي من خدماتنا، فأنت توافق ضمنيًا على سياسة الخصوصية هذه وعلى شروط الاسترداد والتحويل الخيري التلقائي.</p>
+            </div>
+        </div>
+
+        <div id="en-content" class="hidden">
+            <div class="content-section">
+                <h2>1. Introduction</h2>
+                <p>At <span class="highlight">SCRIPT ARAB</span>, we value your privacy and are committed to protecting your personal data. This policy applies to our profit-generation scripts that utilize analysis and server connections with the 1xBet application to achieve high-profit outcomes.</p>
+            </div>
+
+            <div class="content-section">
+                <h2>2. Data We Collect</h2>
+                <ul>
+                    <li>Usage data (device type, OS, time/date)</li>
+                    <li>Analytical results for performance optimization</li>
+                    <li>No personal data is stored or shared without your explicit consent</li>
+                </ul>
+            </div>
+
+            <div class="content-section">
+                <h2>3. How We Use Data</h2>
+                <p>Collected data is used to:</p>
+                <ol>
+                    <li>Optimize scripts and improve performance</li>
+                    <li>Monitor system efficiency</li>
+                    <li>Enhance the user's profit potential</li>
+                </ol>
+            </div>
+
+            <div class="content-section">
+                <h2>4. Refund Policy</h2>
+                <div class="warning-box">
+                    <div class="box-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        Important Notice
+                    </div>
+                    <p>If a technical error occurs on our side, or if you make a mistaken payment:</p>
+                    <ul>
+                        <li>You are eligible to claim only 25% of the amount within 2 hours of the transaction.</li>
+                        <li>75% of the amount is automatically donated to charitable organizations and Gaza support efforts, and is non-refundable.</li>
+                        <li>If more than 2 hours have passed, or you prefer not to request a refund, you may choose any available offer of equal value instead of a refund.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <h2>5. Security</h2>
+                <p>We employ advanced security protocols to protect the confidentiality of all exchanged data.</p>
+                <div class="note-box">
+                    <div class="box-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        </svg>
+                        Your Security is Our Priority
+                    </div>
+                    <p>All data transfers are conducted through encrypted channels following the highest global security standards.</p>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <h2>6. Consent</h2>
+                <p>By using our services, you agree to this Privacy Policy and the automatic donation and refund policy described above.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        © 2025 SCRIPT ARAB. جميع الحقوق محفوظة.
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Language switch functionality
+            const languageBtns = document.querySelectorAll('.language-btn');
+            const arContent = document.getElementById('ar-content');
+            const enContent = document.getElementById('en-content');
+
+            languageBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const lang = this.getAttribute('data-lang');
+                    
+                    // Update active button
+                    languageBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Show selected language content
+                    if (lang === 'ar') {
+                        arContent.classList.remove('hidden');
+                        enContent.classList.add('hidden');
+                        document.documentElement.lang = 'ar';
+                        document.documentElement.dir = 'rtl';
+                    } else {
+                        arContent.classList.add('hidden');
+                        enContent.classList.remove('hidden');
+                        document.documentElement.lang = 'en';
+                        document.documentElement.dir = 'ltr';
+                    }
+                });
+            });
+
+            // Animate sections when they come into view
+            const sections = document.querySelectorAll('.content-section');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = 1;
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            sections.forEach(section => {
+                section.style.opacity = 0;
+                section.style.transform = 'translateY(20px)';
+                section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(section);
+            });
+        });
+    </script>
+</body>
+</html>
